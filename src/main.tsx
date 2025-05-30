@@ -12,7 +12,7 @@ import { ErrorFallback } from './components/common/ErrorFallback';
 // Configurar a baseURL do Axios
 // Em um app real, isso viria de uma variável de ambiente
 if (import.meta.env.PROD) { // Se estiver em produção (build)
-  axios.defaults.baseURL = 'http://localhost:4000'; // Ou a URL do seu backend de produção real
+  axios.defaults.baseURL = 'https://hfs-backend.onrender.com'; // URL do backend no Render.com
 } else { // Em desenvolvimento
   axios.defaults.baseURL = 'http://localhost:4000'; // O backend roda na porta 4000 localmente
 }
