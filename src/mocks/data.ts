@@ -1,0 +1,277 @@
+import { User, Ticket, Technician } from '../types';
+
+// Mock Users
+export const users: User[] = [
+  {
+    id: '1',
+    name: 'Roberta Silva',
+    email: 'roberta@alvotech.com',
+    role: 'client',
+    company: 'Alvo Segurança',
+    createdAt: '2025-01-15T10:00:00Z',
+  },
+  {
+    id: '2',
+    name: 'Calebe Santos',
+    email: 'calebe@anjosdaguarda.com',
+    role: 'client',
+    company: 'Anjos da Guarda',
+    createdAt: '2025-02-20T14:30:00Z',
+  },
+  {
+    id: '3',
+    name: 'Samuel Gomes',
+    email: 'samuel@techsupport.com',
+    role: 'technician',
+    createdAt: '2024-11-10T09:15:00Z',
+  },
+  {
+    id: '4',
+    name: 'Hilton Pereira',
+    email: 'hilton@techsupport.com',
+    role: 'technician',
+    createdAt: '2024-12-05T11:45:00Z',
+  },
+  {
+    id: '5',
+    name: 'Admin',
+    email: 'admin@techsupport.com',
+    role: 'admin',
+    createdAt: '2024-10-01T08:00:00Z',
+  },
+];
+
+// Mock Tickets
+export const tickets: Ticket[] = [
+  {
+    id: '1',
+    title: 'Problema com impressora',
+    description: 'A impressora da recepção não está imprimindo corretamente.',
+    status: 'open',
+    priority: 'medium',
+    clientId: '1',
+    clientName: 'Roberta Silva',
+    companyName: 'Alvo Segurança',
+    createdAt: '2025-05-19T09:30:00Z',
+    updatedAt: '2025-05-19T09:30:00Z',
+    category: 'Impressora',
+    history: [
+      {
+        id: 'h1',
+        ticketId: '1',
+        message: 'Chamado aberto',
+        createdAt: '2025-05-19T09:30:00Z',
+        createdBy: {
+          id: '1',
+          name: 'Roberta Silva',
+          role: 'client',
+        },
+      },
+    ],
+  },
+  {
+    id: '2',
+    title: 'Erro no sistema ERP',
+    description: 'O sistema ERP está apresentando erro ao gerar relatórios financeiros.',
+    status: 'in_progress',
+    priority: 'high',
+    clientId: '1',
+    clientName: 'Roberta Silva',
+    companyName: 'Alvo Segurança',
+    technicianId: '3',
+    technicianName: 'Samuel Gomes',
+    createdAt: '2025-05-18T14:20:00Z',
+    updatedAt: '2025-05-19T10:15:00Z',
+    category: 'Sistema',
+    history: [
+      {
+        id: 'h2',
+        ticketId: '2',
+        message: 'Chamado aberto',
+        createdAt: '2025-05-18T14:20:00Z',
+        createdBy: {
+          id: '1',
+          name: 'Roberta Silva',
+          role: 'client',
+        },
+      },
+      {
+        id: 'h3',
+        ticketId: '2',
+        message: 'Chamado atribuído ao técnico Samuel',
+        createdAt: '2025-05-18T15:00:00Z',
+        createdBy: {
+          id: '5',
+          name: 'Admin',
+          role: 'admin',
+        },
+      },
+      {
+        id: 'h4',
+        ticketId: '2',
+        message: 'Estou analisando o problema. Vou verificar as configurações do relatório.',
+        createdAt: '2025-05-19T10:15:00Z',
+        createdBy: {
+          id: '3',
+          name: 'Samuel Gomes',
+          role: 'technician',
+        },
+      },
+    ],
+  },
+  {
+    id: '3',
+    title: 'Configuração de VPN',
+    description: 'Precisamos configurar acesso VPN para 3 novos funcionários.',
+    status: 'completed',
+    priority: 'medium',
+    clientId: '2',
+    clientName: 'Calebe Santos',
+    companyName: 'Anjos da Guarda',
+    technicianId: '4',
+    technicianName: 'Hilton Pereira',
+    createdAt: '2025-05-15T11:00:00Z',
+    updatedAt: '2025-05-17T16:45:00Z',
+    category: 'Rede',
+    history: [
+      {
+        id: 'h5',
+        ticketId: '3',
+        message: 'Chamado aberto',
+        createdAt: '2025-05-15T11:00:00Z',
+        createdBy: {
+          id: '2',
+          name: 'Calebe Santos',
+          role: 'client',
+        },
+      },
+      {
+        id: 'h6',
+        ticketId: '3',
+        message: 'Chamado atribuído ao técnico Hilton',
+        createdAt: '2025-05-15T13:20:00Z',
+        createdBy: {
+          id: '5',
+          name: 'Admin',
+          role: 'admin',
+        },
+      },
+      {
+        id: 'h7',
+        ticketId: '3',
+        message: 'Configuração concluída para todos os funcionários. Favor testar e confirmar.',
+        createdAt: '2025-05-17T16:30:00Z',
+        createdBy: {
+          id: '4',
+          name: 'Hilton Pereira',
+          role: 'technician',
+        },
+      },
+      {
+        id: 'h8',
+        ticketId: '3',
+        message: 'Testado e funcionando corretamente. Obrigado!',
+        createdAt: '2025-05-17T16:45:00Z',
+        createdBy: {
+          id: '2',
+          name: 'Calebe Santos',
+          role: 'client',
+        },
+      },
+    ],
+  },
+  {
+    id: '4',
+    title: 'Problema com backup',
+    description: 'O backup automático não está sendo executado desde ontem.',
+    status: 'open',
+    priority: 'high',
+    clientId: '2',
+    clientName: 'Calebe Santos',
+    companyName: 'Anjos da Guarda',
+    createdAt: '2025-05-20T08:45:00Z',
+    updatedAt: '2025-05-20T08:45:00Z',
+    category: 'Backup',
+    history: [
+      {
+        id: 'h9',
+        ticketId: '4',
+        message: 'Chamado aberto',
+        createdAt: '2025-05-20T08:45:00Z',
+        createdBy: {
+          id: '2',
+          name: 'Calebe Santos',
+          role: 'client',
+        },
+      },
+    ],
+  },
+  {
+    id: '5',
+    title: 'Atualização de sistema',
+    description: 'Precisamos agendar a atualização do sistema para a versão mais recente.',
+    status: 'in_progress',
+    priority: 'low',
+    clientId: '2',
+    clientName: 'Calebe Santos',
+    companyName: 'Anjos da Guarda',
+    technicianId: '3',
+    technicianName: 'Samuel Gomes',
+    createdAt: '2025-05-19T15:30:00Z',
+    updatedAt: '2025-05-20T09:10:00Z',
+    category: 'Sistema',
+    history: [
+      {
+        id: 'h10',
+        ticketId: '5',
+        message: 'Chamado aberto',
+        createdAt: '2025-05-19T15:30:00Z',
+        createdBy: {
+          id: '2',
+          name: 'Calebe Santos',
+          role: 'client',
+        },
+      },
+      {
+        id: 'h11',
+        ticketId: '5',
+        message: 'Chamado atribuído ao técnico Samuel',
+        createdAt: '2025-05-19T16:15:00Z',
+        createdBy: {
+          id: '5',
+          name: 'Admin',
+          role: 'admin',
+        },
+      },
+      {
+        id: 'h12',
+        ticketId: '5',
+        message: 'Podemos agendar para quinta-feira às 18h, após o expediente. Confirma?',
+        createdAt: '2025-05-20T09:10:00Z',
+        createdBy: {
+          id: '3',
+          name: 'Samuel Gomes',
+          role: 'technician',
+        },
+      },
+    ],
+  },
+];
+
+// Mock Technicians
+export const technicians: Technician[] = [
+  {
+    ...users.find(user => user.id === '3') as User,
+    isOnline: true,
+    specialties: ['Software', 'Redes', 'Sistemas'],
+    assignedTickets: 2,
+    completedTickets: 15,
+  },
+  {
+    ...users.find(user => user.id === '4') as User,
+    isOnline: true,
+    specialties: ['Hardware', 'Infraestrutura', 'Segurança'],
+    assignedTickets: 0,
+    completedTickets: 12,
+  },
+];
