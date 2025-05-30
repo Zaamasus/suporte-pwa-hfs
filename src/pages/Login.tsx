@@ -36,9 +36,9 @@ export function Login() {
         </div>
         
         <div className="text-center text-sm text-gray-500 dark:text-gray-400">
-          <p>Credenciais para teste:</p>
+          {/* <p>Credenciais para teste:</p>
           <p className="mt-1">Cliente: roberta@alvotech.com | senha123</p>
-          <p>Técnico: samuel@techsupport.com | senha123</p>
+          <p>Técnico: samuel@techsupport.com | senha123</p> */}
         </div>
       </div>
     </div>
