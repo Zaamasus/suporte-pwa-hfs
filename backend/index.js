@@ -35,9 +35,64 @@ db.serialize(() => {
     priority TEXT,
     clientId INTEGER,
     clientName TEXT,
+    companyName TEXT,
     createdAt TEXT,
     category TEXT
   )`);
+  
+  // Adicionar coluna companyName se ela não existir
+  db.run(`PRAGMA table_info(tickets)`, [], (err, rows) => {
+    if (err) {
+      console.error("Erro ao verificar colunas da tabela tickets:", err);
+      return;
+    }
+    
+    // Verificar se a coluna já existe no resultado
+    let hasCompanyNameColumn = false;
+    if (rows) {
+      for (const row of rows) {
+        if (row.name === 'companyName') {
+          hasCompanyNameColumn = true;
+          break;
+        }
+      }
+    }
+    
+    // Se a coluna não existir, adicioná-la
+    if (!hasCompanyNameColumn) {
+      console.log("Adicionando coluna companyName à tabela tickets...");
+      db.run(`ALTER TABLE tickets ADD COLUMN companyName TEXT`, [], (alterErr) => {
+        if (alterErr) {
+          console.error("Erro ao adicionar coluna companyName:", alterErr);
+        } else {
+          console.log("Coluna companyName adicionada com sucesso!");
+          
+          // Atualizar registros existentes com as empresas dos clientes
+          db.all(`SELECT t.id, t.clientId, u.company FROM tickets t 
+                  JOIN users u ON t.clientId = u.id 
+                  WHERE t.companyName IS NULL`, [], (selErr, ticketsToUpdate) => {
+            if (selErr) {
+              console.error("Erro ao buscar tickets para atualizar companyName:", selErr);
+              return;
+            }
+            
+            if (ticketsToUpdate && ticketsToUpdate.length > 0) {
+              console.log(`Atualizando ${ticketsToUpdate.length} tickets com informação de empresa...`);
+              
+              ticketsToUpdate.forEach(ticket => {
+                db.run(`UPDATE tickets SET companyName = ? WHERE id = ?`, 
+                  [ticket.company, ticket.id], (updateErr) => {
+                  if (updateErr) {
+                    console.error(`Erro ao atualizar companyName para ticket ${ticket.id}:`, updateErr);
+                  }
+                });
+              });
+            }
+          });
+        }
+      });
+    }
+  });
 });
 
 // Middleware para autenticação JWT
@@ -74,15 +129,30 @@ app.post('/api/auth/register', (req, res) => {
 
 // Rota de login
 app.post('/api/auth/login', (req, res) => {
+  console.log("Rota /api/auth/login ACESSADA. Body:", req.body);
   const { email, password } = req.body;
   db.get(`SELECT * FROM users WHERE email = ?`, [email], (err, user) => {
     if (err || !user) {
       return res.status(401).json({ error: 'Email ou senha inválidos' });
     }
+    // Log para depuração
+    console.log("Tentativa de login - Usuário encontrado no DB:", user.email, "Senha recebida do frontend:", password, "Hash da senha no DB:", user.password);
     if (!bcrypt.compareSync(password, user.password)) {
       return res.status(401).json({ error: 'Email ou senha inválidos' });
     }
-    const token = jwt.sign({ id: user.id, email: user.email, role: user.role }, SECRET, { expiresIn: '8h' });
+    // Gerar token JWT com TODAS as informações necessárias
+    const token = jwt.sign(
+      { 
+        id: user.id, 
+        email: user.email, 
+        role: user.role,
+        name: user.name,
+        company: user.company
+      }, 
+      SECRET, 
+      { expiresIn: '8h' }
+    );
+    console.log("JWT payload:", { id: user.id, email: user.email, role: user.role, name: user.name, company: user.company });
     res.json({
       user: {
         id: user.id,
@@ -97,32 +167,63 @@ app.post('/api/auth/login', (req, res) => {
   });
 });
 
-// Rotas de tickets
+// Rota para obter tickets
 app.get('/api/tickets', authenticateToken, (req, res) => {
-  const { role, id } = req.user;
-  let sql = 'SELECT * FROM tickets';
+  console.log("GET /api/tickets - Usuário:", req.user);
+  
+  // Filtro baseado no papel do usuário
+  let query = '';
   let params = [];
-  if (role === 'client') {
-    sql += ' WHERE clientId = ?';
-    params.push(id);
+  
+  if (req.user.role === 'client') {
+    // Clientes veem tickets da sua empresa, não apenas os próprios
+    query = `SELECT * FROM tickets WHERE companyName = ? ORDER BY createdAt DESC`;
+    params = [req.user.company]; // Filtrar por empresa do cliente
+    console.log("GET /api/tickets - Filtrando por empresa:", req.user.company);
+  } else {
+    // Técnicos veem todos os tickets
+    query = `SELECT * FROM tickets ORDER BY createdAt DESC`;
+    console.log("GET /api/tickets - Técnico vendo todos os tickets");
   }
-  db.all(sql, params, (err, rows) => {
-    if (err) return res.status(500).json({ error: err.message });
+  
+  db.all(query, params, (err, rows) => {
+    if (err) {
+      console.error("Erro ao buscar tickets:", err);
+      return res.status(500).json({ error: 'Erro interno ao buscar tickets' });
+    }
     res.json(rows);
   });
 });
 
+// Rota para criar um ticket
 app.post('/api/tickets', authenticateToken, (req, res) => {
+  console.log("POST /api/tickets - Rota acessada. Body da requisição:", req.body);
+  console.log("POST /api/tickets - Dados do usuário (do token):", req.user);
+
   const { title, description, priority, category } = req.body;
-  const { id, name, role } = req.user;
-  if (role !== 'client') return res.status(403).json({ error: 'Apenas clientes podem criar tickets' });
+  const { id: clientId, name: clientName, role, company: companyName } = req.user;
+
+  if (role !== 'client') {
+    console.warn("POST /api/tickets - Tentativa de criação por não-cliente:", req.user);
+    return res.status(403).json({ error: 'Apenas clientes podem criar tickets' });
+  }
   const createdAt = new Date().toISOString();
+  
+  console.log("POST /api/tickets - Dados a serem inseridos no DB:", 
+    { title, description, priority: priority || 'medium', clientId, clientName, companyName, createdAt, category }
+  );
+
   db.run(
-    `INSERT INTO tickets (title, description, status, priority, clientId, clientName, createdAt, category) VALUES (?, ?, 'open', ?, ?, ?, ?, ?)`,
-    [title, description, priority || 'medium', id, name, createdAt, category],
-    function (err) {
-      if (err) return res.status(500).json({ error: err.message });
-      res.json({ id: this.lastID, title, description, status: 'open', priority, clientId: id, clientName: name, createdAt, category });
+    `INSERT INTO tickets (title, description, status, priority, clientId, clientName, companyName, createdAt, category) 
+     VALUES (?, ?, 'open', ?, ?, ?, ?, ?, ?)`,
+    [title, description, priority || 'medium', clientId, clientName, companyName, createdAt, category || 'other'],
+    function(err) {
+      if (err) {
+        console.error("Erro ao inserir ticket:", err);
+        return res.status(500).json({ error: 'Erro interno ao criar ticket' });
+      }
+      console.log("Ticket criado com sucesso. ID:", this.lastID);
+      res.status(201).json({ id: this.lastID, success: true, message: 'Ticket criado com sucesso' });
     }
   );
 });

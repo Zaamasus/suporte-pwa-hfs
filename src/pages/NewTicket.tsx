@@ -5,10 +5,15 @@ import { useAuth } from '../contexts/AuthContext';
 import { Layout } from '../components/layout/Layout';
 import { Card, CardContent, CardHeader } from '../components/ui/Card';
 import { TicketForm } from '../components/tickets/TicketForm';
+import { Toast } from '../components/ui/Toast';
+import { useState } from 'react';
+import { useQueryClient } from 'react-query';
 
 export function NewTicket() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const [showSuccessToast, setShowSuccessToast] = useState(false);
   
   const createTicketMutation = useMutation(
     async (data: { title: string; description: string; priority: string; category: string }) => {
@@ -19,7 +24,13 @@ export function NewTicket() {
     },
     {
       onSuccess: (response) => {
-        navigate(`/tickets/${response.data.id}`);
+        queryClient.invalidateQueries('tickets');
+        
+        setShowSuccessToast(true);
+        
+        setTimeout(() => {
+          navigate('/tickets');
+        }, 1500);
       },
     }
   );
@@ -46,6 +57,14 @@ export function NewTicket() {
             />
           </CardContent>
         </Card>
+        
+        {showSuccessToast && (
+          <Toast 
+            type="success"
+            message="Chamado criado com sucesso!"
+            onClose={() => setShowSuccessToast(false)}
+          />
+        )}
       </div>
     </Layout>
   );

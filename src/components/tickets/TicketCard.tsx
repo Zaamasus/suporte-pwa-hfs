@@ -38,7 +38,7 @@ export function TicketCard({ ticket }: TicketCardProps) {
             </div>
             <div className="flex items-center">
               <MessageSquare className="mr-1 h-4 w-4" />
-              <span>{ticket.history.length}</span>
+              <span>{ticket.history ? ticket.history.length : 0}</span>
             </div>
           </div>
         </CardContent>

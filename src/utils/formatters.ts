@@ -4,20 +4,53 @@ import { TicketStatus, TicketPriority } from '../types';
 
 // Format date to dd/MM/yyyy
 export const formatDate = (date: string | Date): string => {
-  return format(new Date(date), 'dd/MM/yyyy', { locale: ptBR });
+  try {
+    // Verificar se a data é válida
+    const dateObj = new Date(date);
+    if (isNaN(dateObj.getTime())) {
+      console.error(`Data inválida recebida: ${date}`);
+      return 'Data inválida';
+    }
+    return format(dateObj, 'dd/MM/yyyy', { locale: ptBR });
+  } catch (error) {
+    console.error('Erro ao formatar data:', error);
+    return 'Data inválida';
+  }
 };
 
 // Format date and time to dd/MM/yyyy HH:mm
 export const formatDateTime = (date: string | Date): string => {
-  return format(new Date(date), 'dd/MM/yyyy HH:mm', { locale: ptBR });
+  try {
+    // Verificar se a data é válida
+    const dateObj = new Date(date);
+    if (isNaN(dateObj.getTime())) {
+      console.error(`Data inválida recebida: ${date}`);
+      return 'Data inválida';
+    }
+    return format(dateObj, 'dd/MM/yyyy HH:mm', { locale: ptBR });
+  } catch (error) {
+    console.error('Erro ao formatar data e hora:', error);
+    return 'Data inválida';
+  }
 };
 
 // Format date to relative time (e.g. "há 2 dias")
 export const formatRelativeTime = (date: string | Date): string => {
-  return formatDistance(new Date(date), new Date(), {
-    addSuffix: true,
-    locale: ptBR,
-  });
+  try {
+    // Verificar se a data é válida
+    const dateObj = new Date(date);
+    if (isNaN(dateObj.getTime())) {
+      console.error(`Data inválida recebida: ${date}`);
+      return 'Data inválida';
+    }
+    return formatDistance(dateObj, new Date(), {
+      addSuffix: true,
+      locale: ptBR,
+    });
+  } catch (error) {
+    console.error('Erro ao formatar tempo relativo:', error);
+    return 'Data inválida';
+  }
 };
 
 // Get ticket status in Portuguese

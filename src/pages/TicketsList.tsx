@@ -31,6 +31,7 @@ export function TicketsList() {
           status: filters.status,
         },
       });
+      console.log('Tickets recebidos do backend:', response.data);
       return response.data;
     },
     {

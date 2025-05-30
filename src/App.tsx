@@ -11,6 +11,9 @@ import { NewTicket } from './pages/NewTicket';
 import { NewClient } from './pages/NewClient';
 import { ClientsList } from './pages/ClientsList';
 
+// Components
+import { ErrorFallback } from './components/common/ErrorFallback';
+
 // Utils
 import { isClient, isTechnician } from './utils/authUtils';
 
@@ -33,7 +36,7 @@ const ProtectedRoute = ({ children, allowedRoles }: { children: JSX.Element, all
 function App() {
   return (
     <Routes>
-      <Route path="/login" element={<Login />} />
+      <Route path="/login" element={<Login />} errorElement={<ErrorFallback />} />
       
       <Route 
         path="/" 
@@ -41,7 +44,8 @@ function App() {
           <ProtectedRoute>
             <Dashboard />
           </ProtectedRoute>
-        } 
+        }
+        errorElement={<ErrorFallback />}
       />
       
       <Route 
@@ -50,7 +54,8 @@ function App() {
           <ProtectedRoute>
             <TicketsList />
           </ProtectedRoute>
-        } 
+        }
+        errorElement={<ErrorFallback />}
       />
       
       <Route 
@@ -59,7 +64,8 @@ function App() {
           <ProtectedRoute>
             <TicketDetails />
           </ProtectedRoute>
-        } 
+        }
+        errorElement={<ErrorFallback />}
       />
       
       <Route 
@@ -68,7 +74,8 @@ function App() {
           <ProtectedRoute allowedRoles={['client']}>
             <NewTicket />
           </ProtectedRoute>
-        } 
+        }
+        errorElement={<ErrorFallback />}
       />
       
       <Route 
@@ -77,7 +84,8 @@ function App() {
           <ProtectedRoute allowedRoles={['technician', 'admin']}>
             <NewClient />
           </ProtectedRoute>
-        } 
+        }
+        errorElement={<ErrorFallback />}
       />
       
       <Route 
@@ -86,10 +94,11 @@ function App() {
           <ProtectedRoute allowedRoles={['technician', 'admin']}>
             <ClientsList />
           </ProtectedRoute>
-        } 
+        }
+        errorElement={<ErrorFallback />}
       />
       
-      <Route path="*" element={<Navigate to="/\" replace />} />
+      <Route path="*" element={<Navigate to="/\" replace />} errorElement={<ErrorFallback />} />
     </Routes>
   );
 }
