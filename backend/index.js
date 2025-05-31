@@ -8,95 +8,123 @@ const app = express();
 const PORT = process.env.PORT || 4000;
 const SECRET = process.env.JWT_SECRET || 'supersecret';
 
+// Determina se deve usar Supabase
+const USE_SUPABASE = process.env.USE_SUPABASE === 'true';
+
+// Se estiver usando Supabase, importa os serviços
+let supabaseServices;
+if (USE_SUPABASE) {
+  try {
+    supabaseServices = require('./supabase');
+    // Testar conexão com Supabase ao iniciar
+    supabaseServices.testConnection().catch(console.error);
+    console.log('🚀 Usando Supabase como banco de dados');
+  } catch (error) {
+    console.error('❌ Erro ao inicializar Supabase:', error);
+    console.log('Usando SQLite como fallback');
+  }
+} else {
+  console.log('🔶 Usando SQLite como banco de dados');
+}
+
 app.use(cors());
 app.use(express.json());
 
-// Banco de dados SQLite
-const db = new sqlite3.Database('./hfs.db', (err) => {
-  if (err) return console.error('Erro ao conectar no banco:', err.message);
-  console.log('Conectado ao banco SQLite');
-});
+// Banco de dados SQLite (usado apenas se não estiver usando Supabase)
+let db;
+if (!USE_SUPABASE) {
+  db = new sqlite3.Database('./hfs.db', (err) => {
+    if (err) return console.error('Erro ao conectar no banco:', err.message);
+    console.log('Conectado ao banco SQLite');
+  });
 
-db.serialize(() => {
-  db.run(`CREATE TABLE IF NOT EXISTS users (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
-    email TEXT UNIQUE NOT NULL,
-    password TEXT NOT NULL,
-    role TEXT NOT NULL DEFAULT 'client',
-    company TEXT,
-    createdAt TEXT
-  )`);
-  db.run(`CREATE TABLE IF NOT EXISTS tickets (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    title TEXT NOT NULL,
-    description TEXT NOT NULL,
-    status TEXT NOT NULL,
-    priority TEXT,
-    clientId INTEGER,
-    clientName TEXT,
-    companyName TEXT,
-    createdAt TEXT,
-    category TEXT
-  )`);
-  
-  // Adicionar coluna companyName se ela não existir
-  db.run(`PRAGMA table_info(tickets)`, [], (err, rows) => {
-    if (err) {
-      console.error("Erro ao verificar colunas da tabela tickets:", err);
-      return;
-    }
+  db.serialize(() => {
+    db.run(`CREATE TABLE IF NOT EXISTS users (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      email TEXT UNIQUE NOT NULL,
+      password TEXT NOT NULL,
+      role TEXT NOT NULL DEFAULT 'client',
+      company TEXT,
+      createdAt TEXT
+    )`);
+    db.run(`CREATE TABLE IF NOT EXISTS tickets (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      title TEXT NOT NULL,
+      description TEXT NOT NULL,
+      status TEXT NOT NULL,
+      priority TEXT,
+      clientId INTEGER,
+      clientName TEXT,
+      companyName TEXT,
+      createdAt TEXT,
+      category TEXT
+    )`);
     
-    // Verificar se a coluna já existe no resultado
-    let hasCompanyNameColumn = false;
-    if (rows) {
-      for (const row of rows) {
-        if (row.name === 'companyName') {
-          hasCompanyNameColumn = true;
-          break;
+    // Adicionar coluna companyName se ela não existir
+    db.run(`PRAGMA table_info(tickets)`, [], (err, rows) => {
+      if (err) {
+        console.error("Erro ao verificar colunas da tabela tickets:", err);
+        return;
+      }
+      
+      // Verificar se a coluna já existe no resultado
+      let hasCompanyNameColumn = false;
+      if (rows) {
+        for (const row of rows) {
+          if (row.name === 'companyName') {
+            hasCompanyNameColumn = true;
+            break;
+          }
         }
       }
-    }
-    
-    // Se a coluna não existir, adicioná-la
-    if (!hasCompanyNameColumn) {
-      console.log("Adicionando coluna companyName à tabela tickets...");
-      db.run(`ALTER TABLE tickets ADD COLUMN companyName TEXT`, [], (alterErr) => {
-        if (alterErr) {
-          console.error("Erro ao adicionar coluna companyName:", alterErr);
-        } else {
-          console.log("Coluna companyName adicionada com sucesso!");
-          
-          // Atualizar registros existentes com as empresas dos clientes
-          db.all(`SELECT t.id, t.clientId, u.company FROM tickets t 
-                  JOIN users u ON t.clientId = u.id 
-                  WHERE t.companyName IS NULL`, [], (selErr, ticketsToUpdate) => {
-            if (selErr) {
-              console.error("Erro ao buscar tickets para atualizar companyName:", selErr);
-              return;
-            }
+      
+      // Se a coluna não existir, adicioná-la
+      if (!hasCompanyNameColumn) {
+        console.log("Adicionando coluna companyName à tabela tickets...");
+        db.run(`ALTER TABLE tickets ADD COLUMN companyName TEXT`, [], (alterErr) => {
+          if (alterErr) {
+            console.error("Erro ao adicionar coluna companyName:", alterErr);
+          } else {
+            console.log("Coluna companyName adicionada com sucesso!");
             
-            if (ticketsToUpdate && ticketsToUpdate.length > 0) {
-              console.log(`Atualizando ${ticketsToUpdate.length} tickets com informação de empresa...`);
+            // Atualizar registros existentes com as empresas dos clientes
+            db.all(`SELECT t.id, t.clientId, u.company FROM tickets t 
+                    JOIN users u ON t.clientId = u.id 
+                    WHERE t.companyName IS NULL`, [], (selErr, ticketsToUpdate) => {
+              if (selErr) {
+                console.error("Erro ao buscar tickets para atualizar companyName:", selErr);
+                return;
+              }
               
-              ticketsToUpdate.forEach(ticket => {
-                db.run(`UPDATE tickets SET companyName = ? WHERE id = ?`, 
-                  [ticket.company, ticket.id], (updateErr) => {
-                  if (updateErr) {
-                    console.error(`Erro ao atualizar companyName para ticket ${ticket.id}:`, updateErr);
-                  }
+              if (ticketsToUpdate && ticketsToUpdate.length > 0) {
+                console.log(`Atualizando ${ticketsToUpdate.length} tickets com informação de empresa...`);
+                
+                ticketsToUpdate.forEach(ticket => {
+                  db.run(`UPDATE tickets SET companyName = ? WHERE id = ?`, 
+                    [ticket.company, ticket.id], (updateErr) => {
+                    if (updateErr) {
+                      console.error(`Erro ao atualizar companyName para ticket ${ticket.id}:`, updateErr);
+                    }
+                  });
                 });
-              });
-            }
-          });
-        }
-      });
-    }
+              }
+            });
+          }
+        });
+      }
+    });
   });
-});
+}
 
 // Middleware para autenticação JWT
 function authenticateToken(req, res, next) {
+  // Se estiver usando Supabase, use o middleware do Supabase
+  if (USE_SUPABASE && supabaseServices) {
+    return supabaseServices.authService.authenticateToken(req, res, next);
+  }
+  
+  // Implementação original para SQLite
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
   if (!token) return res.status(401).json({ error: 'Token não fornecido' });
@@ -109,6 +137,21 @@ function authenticateToken(req, res, next) {
 
 // Rota de registro
 app.post('/api/auth/register', (req, res) => {
+  // Se estiver usando Supabase
+  if (USE_SUPABASE && supabaseServices) {
+    supabaseServices.authService.register(req.body)
+      .then(user => res.json(user))
+      .catch(error => {
+        if (error.message === 'Email já cadastrado') {
+          return res.status(400).json({ error: error.message });
+        }
+        console.error('Erro no registro:', error);
+        res.status(500).json({ error: 'Erro interno no servidor' });
+      });
+    return;
+  }
+  
+  // Implementação original com SQLite
   const { name, email, password, company } = req.body;
   if (!name || !email || !password) {
     return res.status(400).json({ error: 'Dados obrigatórios ausentes' });
@@ -130,6 +173,20 @@ app.post('/api/auth/register', (req, res) => {
 // Rota de login
 app.post('/api/auth/login', (req, res) => {
   console.log("Rota /api/auth/login ACESSADA. Body:", req.body);
+  
+  // Se estiver usando Supabase
+  if (USE_SUPABASE && supabaseServices) {
+    const { email, password } = req.body;
+    supabaseServices.authService.login(email, password)
+      .then(data => res.json(data))
+      .catch(error => {
+        console.error('Erro no login:', error);
+        res.status(401).json({ error: 'Email ou senha inválidos' });
+      });
+    return;
+  }
+  
+  // Implementação original com SQLite
   const { email, password } = req.body;
   db.get(`SELECT * FROM users WHERE email = ?`, [email], (err, user) => {
     if (err || !user) {
@@ -171,7 +228,18 @@ app.post('/api/auth/login', (req, res) => {
 app.get('/api/tickets', authenticateToken, (req, res) => {
   console.log("GET /api/tickets - Usuário:", req.user);
   
-  // Filtro baseado no papel do usuário
+  // Se estiver usando Supabase
+  if (USE_SUPABASE && supabaseServices) {
+    supabaseServices.ticketService.getTickets(req.user)
+      .then(tickets => res.json(tickets))
+      .catch(error => {
+        console.error('Erro ao buscar tickets:', error);
+        res.status(500).json({ error: 'Erro interno ao buscar tickets' });
+      });
+    return;
+  }
+  
+  // Implementação original com SQLite
   let query = '';
   let params = [];
   
@@ -200,13 +268,27 @@ app.post('/api/tickets', authenticateToken, (req, res) => {
   console.log("POST /api/tickets - Rota acessada. Body da requisição:", req.body);
   console.log("POST /api/tickets - Dados do usuário (do token):", req.user);
 
-  const { title, description, priority, category } = req.body;
-  const { id: clientId, name: clientName, role, company: companyName } = req.user;
-
+  // Verificar se o usuário é um cliente
+  const { role } = req.user;
   if (role !== 'client') {
     console.warn("POST /api/tickets - Tentativa de criação por não-cliente:", req.user);
     return res.status(403).json({ error: 'Apenas clientes podem criar tickets' });
   }
+  
+  // Se estiver usando Supabase
+  if (USE_SUPABASE && supabaseServices) {
+    supabaseServices.ticketService.createTicket(req.body, req.user)
+      .then(ticket => res.status(201).json({ id: ticket.id, success: true, message: 'Ticket criado com sucesso' }))
+      .catch(error => {
+        console.error('Erro ao criar ticket:', error);
+        res.status(500).json({ error: 'Erro interno ao criar ticket' });
+      });
+    return;
+  }
+  
+  // Implementação original com SQLite
+  const { title, description, priority, category } = req.body;
+  const { id: clientId, name: clientName, company: companyName } = req.user;
   const createdAt = new Date().toISOString();
   
   console.log("POST /api/tickets - Dados a serem inseridos no DB:", 
@@ -232,6 +314,24 @@ app.post('/api/tickets', authenticateToken, (req, res) => {
 app.get('/api/clients', authenticateToken, (req, res) => {
   const { role } = req.user;
   if (role !== 'technician' && role !== 'admin') return res.status(403).json({ error: 'Acesso negado' });
+  
+  // Se estiver usando Supabase
+  if (USE_SUPABASE && supabaseServices) {
+    supabaseServices.supabase
+      .from('users')
+      .select('id, name, email, company, createdAt')
+      .eq('role', 'client')
+      .then(({ data, error }) => {
+        if (error) {
+          console.error('Erro ao buscar clientes:', error);
+          return res.status(500).json({ error: error.message });
+        }
+        res.json(data);
+      });
+    return;
+  }
+  
+  // Implementação original com SQLite
   db.all(`SELECT id, name, email, company, createdAt FROM users WHERE role = 'client'`, [], (err, rows) => {
     if (err) return res.status(500).json({ error: err.message });
     res.json(rows);
@@ -242,7 +342,18 @@ app.get('/api/clients', authenticateToken, (req, res) => {
 app.get('/api/technicians', authenticateToken, (req, res) => {
   console.log("GET /api/technicians - Usuário:", req.user);
   
-  // Buscar todos os usuários com role = 'technician'
+  // Se estiver usando Supabase
+  if (USE_SUPABASE && supabaseServices) {
+    supabaseServices.technicianService.getTechnicians()
+      .then(technicians => res.json(technicians))
+      .catch(error => {
+        console.error('Erro ao buscar técnicos:', error);
+        res.status(500).json({ error: 'Erro interno ao buscar técnicos' });
+      });
+    return;
+  }
+  
+  // Implementação original com SQLite
   db.all(`SELECT id, name, email, createdAt FROM users WHERE role = 'technician'`, [], (err, technicians) => {
     if (err) {
       console.error("Erro ao buscar técnicos:", err);
@@ -288,7 +399,11 @@ app.get('/api/technicians', authenticateToken, (req, res) => {
 
 // Endpoint de health check para monitoramento
 app.get('/healthz', (req, res) => {
-  res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
+  res.status(200).json({ 
+    status: 'ok', 
+    timestamp: new Date().toISOString(),
+    database: USE_SUPABASE ? 'supabase' : 'sqlite'
+  });
 });
 
 // Auto-ping para manter o serviço ativo (prevenir hibernação)
@@ -319,7 +434,7 @@ setTimeout(() => {
 }, 60000);
 
 app.get('/', (req, res) => {
-  res.send('API HFS INFORMATICA rodando!');
+  res.send(`API HFS INFORMATICA rodando! Usando ${USE_SUPABASE ? 'Supabase' : 'SQLite'}`);
 });
 
 app.listen(PORT, () => {
