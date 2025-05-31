@@ -238,6 +238,86 @@ app.get('/api/clients', authenticateToken, (req, res) => {
   });
 });
 
+// Rota para obter técnicos
+app.get('/api/technicians', authenticateToken, (req, res) => {
+  console.log("GET /api/technicians - Usuário:", req.user);
+  
+  // Buscar todos os usuários com role = 'technician'
+  db.all(`SELECT id, name, email, createdAt FROM users WHERE role = 'technician'`, [], (err, technicians) => {
+    if (err) {
+      console.error("Erro ao buscar técnicos:", err);
+      return res.status(500).json({ error: 'Erro interno ao buscar técnicos' });
+    }
+    
+    // Adicionar informações extras para cada técnico
+    const result = technicians.map(tech => {
+      return {
+        ...tech,
+        isOnline: true, // Por padrão, todos estão online
+        specialties: ['Software', 'Hardware', 'Redes'], // Especialidades padrão
+        assignedTickets: 0, // Será calculado depois
+        completedTickets: 0 // Será calculado depois
+      };
+    });
+    
+    // Para cada técnico, contar os tickets atribuídos e concluídos
+    const promises = result.map(tech => {
+      return new Promise((resolve) => {
+        db.get(`SELECT COUNT(*) as assigned FROM tickets WHERE technicianId = ? AND status IN ('open', 'in_progress')`, 
+          [tech.id], (err, assigned) => {
+          if (!err && assigned) {
+            tech.assignedTickets = assigned.assigned;
+          }
+          
+          db.get(`SELECT COUNT(*) as completed FROM tickets WHERE technicianId = ? AND status = 'completed'`, 
+            [tech.id], (err, completed) => {
+            if (!err && completed) {
+              tech.completedTickets = completed.completed;
+            }
+            resolve();
+          });
+        });
+      });
+    });
+    
+    Promise.all(promises).then(() => {
+      res.json(result);
+    });
+  });
+});
+
+// Endpoint de health check para monitoramento
+app.get('/healthz', (req, res) => {
+  res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+// Auto-ping para manter o serviço ativo (prevenir hibernação)
+const PING_INTERVAL = 10 * 60 * 1000; // 10 minutos em milissegundos
+const RENDER_URL = 'https://hfs-backend.onrender.com';
+
+// Função para fazer auto-ping no próprio serviço
+function keepAlive() {
+  console.log(`[${new Date().toISOString()}] Auto-ping para manter serviço ativo`);
+  fetch(`${RENDER_URL}/healthz`)
+    .then(response => {
+      if (response.ok) {
+        console.log(`[${new Date().toISOString()}] Auto-ping bem-sucedido: ${response.status}`);
+      } else {
+        console.error(`[${new Date().toISOString()}] Auto-ping falhou: ${response.status}`);
+      }
+    })
+    .catch(error => {
+      console.error(`[${new Date().toISOString()}] Erro no auto-ping:`, error.message);
+    });
+}
+
+// Inicia o mecanismo de auto-ping após 1 minuto do servidor iniciar
+setTimeout(() => {
+  console.log(`[${new Date().toISOString()}] Iniciando mecanismo de auto-ping...`);
+  keepAlive(); // Executa imediatamente na primeira vez
+  setInterval(keepAlive, PING_INTERVAL); // Depois executa a cada intervalo
+}, 60000);
+
 app.get('/', (req, res) => {
   res.send('API HFS INFORMATICA rodando!');
 });
