@@ -1,6 +1,6 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { RouterProvider, createHashRouter } from 'react-router-dom';
+import { RouterProvider, createHashRouter, createBrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import axios from 'axios';
 import App from './App';
@@ -43,8 +43,12 @@ async function prepareApp() {
     },
   });
 
-  // Configuração das rotas para createHashRouter com errorElement global
-  const router = createHashRouter([
+  // Escolher o router apropriado para o ambiente
+  // Em produção (GitHub Pages): usar createHashRouter para compatibilidade com hospedagem estática
+  // Em desenvolvimento: usar createBrowserRouter para URLs mais limpas
+  const createRouter = import.meta.env.PROD ? createHashRouter : createBrowserRouter;
+  
+  const router = createRouter([
     {
       path: "/*",
       element: <App />,
