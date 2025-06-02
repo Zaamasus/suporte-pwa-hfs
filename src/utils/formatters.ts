@@ -58,9 +58,11 @@ export const getTicketStatusText = (status: TicketStatus): string => {
   const statusMap: Record<TicketStatus, string> = {
     open: 'Em aberto',
     in_progress: 'Em andamento',
+    paused: 'Em pausa',
     completed: 'Concluído',
+    closed: 'Concluído',
   };
-  return statusMap[status];
+  return statusMap[status] || status;
 };
 
 // Get ticket status color

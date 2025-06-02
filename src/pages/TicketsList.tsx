@@ -9,7 +9,7 @@ import { TicketCard } from '../components/tickets/TicketCard';
 import { Button } from '../components/ui/Button';
 import { Ticket } from '../types';
 import { LoadingSpinner } from '../components/common/LoadingSpinner';
-import { PlusCircle } from 'lucide-react';
+import { PlusCircle, ChevronDown, ChevronRight, Filter } from 'lucide-react';
 import { isClient } from '../utils/authUtils';
 
 export function TicketsList() {
@@ -100,14 +100,28 @@ export function TicketsList() {
         })
     : [];
 
+  // Separar tickets concluídos dos demais
+  const ticketsConcluidos = filteredTickets.filter(t => t.status === 'closed');
+  const ticketsAbertos = filteredTickets.filter(t => t.status !== 'closed');
+  const [showConcluidos, setShowConcluidos] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
+
   return (
     <Layout>
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Chamados
-          </h1>
-          
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+              Chamados
+            </h1>
+            <button
+              className="ml-2 p-2 rounded hover:bg-gray-100 dark:hover:bg-dark-200 focus:outline-none"
+              onClick={() => setShowFilters((v) => !v)}
+              title="Filtrar chamados"
+            >
+              <Filter className="w-5 h-5 text-primary-600" />
+            </button>
+          </div>
           {isClient(user) && (
             <Link to="/tickets/new">
               <Button leftIcon={<PlusCircle className="h-4 w-4" />}>
@@ -116,8 +130,9 @@ export function TicketsList() {
             </Link>
           )}
         </div>
-        
-        <TicketListFilters onFilter={setFilters} />
+        {showFilters && (
+          <TicketListFilters onFilter={setFilters} />
+        )}
         
         {isLoading ? (
           <div className="py-20">
@@ -125,27 +140,29 @@ export function TicketsList() {
           </div>
         ) : (
           <>
-            {filteredTickets.length > 0 ? (
+            {ticketsAbertos.length > 0 && (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredTickets.map((ticket) => (
+                {ticketsAbertos.map((ticket) => (
                   <TicketCard key={ticket.id} ticket={ticket} />
                 ))}
               </div>
-            ) : (
-              <div className="text-center py-16">
-                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-                  Nenhum chamado encontrado
-                </h3>
-                <p className="text-gray-500 dark:text-gray-400 mb-6">
-                  {filters.search || filters.status || filters.priority
-                    ? 'Tente ajustar os filtros para encontrar o que está procurando.'
-                    : 'Você ainda não possui chamados registrados.'}
-                </p>
-                
-                {isClient(user) && !filters.search && !filters.status && !filters.priority && (
-                  <Link to="/tickets/new">
-                    <Button>Criar Novo Chamado</Button>
-                  </Link>
+            )}
+            {/* Container colapsável para tickets concluídos */}
+            {ticketsConcluidos.length > 0 && (
+              <div className="mt-8">
+                <button
+                  className="flex items-center gap-2 text-lg font-semibold text-green-700 dark:text-green-400 focus:outline-none mb-4"
+                  onClick={() => setShowConcluidos((v) => !v)}
+                >
+                  {showConcluidos ? <ChevronDown className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
+                  Chamados Concluídos ({ticketsConcluidos.length})
+                </button>
+                {showConcluidos && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {ticketsConcluidos.map((ticket) => (
+                      <TicketCard key={ticket.id} ticket={ticket} />
+                    ))}
+                  </div>
                 )}
               </div>
             )}
