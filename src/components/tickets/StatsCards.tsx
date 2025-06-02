@@ -16,7 +16,7 @@ export function StatsCards({ tickets }: StatsCardsProps) {
   
   const openTickets = ticketsByStatus.open || 0;
   const inProgressTickets = ticketsByStatus.in_progress || 0;
-  const completedTickets = ticketsByStatus.completed || 0;
+  const completedTickets = ticketsByStatus.closed || 0;
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">

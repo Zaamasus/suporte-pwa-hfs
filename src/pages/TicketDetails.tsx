@@ -33,7 +33,21 @@ export function TicketDetails() {
     ['ticket', id],
     async () => {
       const response = await axios.get(`/api/tickets/${id}`);
-      return response.data;
+      
+      // Mapeia os dados para o formato esperado pelo frontend
+      const mappedTicket = {
+        ...response.data,
+        // Adiciona compatibilidade com os nomes esperados pelo frontend
+        clientId: response.data.client_id || response.data.clientId,
+        clientName: response.data.client_name || response.data.clientName,
+        technicianId: response.data.technician_id || response.data.technicianId,
+        technicianName: response.data.technician_name || response.data.technicianName,
+        companyName: response.data.company || response.data.companyName,
+      };
+      
+      console.log('Ticket mapeado:', mappedTicket);
+      
+      return mappedTicket;
     },
     {
       enabled: !!id,
@@ -213,7 +227,7 @@ export function TicketDetails() {
                       variant="primary"
                       size="sm"
                       leftIcon={<RefreshCw className="h-4 w-4" />}
-                      onClick={() => handleUpdateStatus('in_progress')}
+                      onClick={() => handleUpdateStatus(TicketStatus.IN_PROGRESS)}
                       isLoading={updateMutation.isLoading}
                     >
                       Iniciar Atendimento
@@ -225,19 +239,19 @@ export function TicketDetails() {
                       variant="success"
                       size="sm"
                       leftIcon={<CheckCircle className="h-4 w-4" />}
-                      onClick={() => handleUpdateStatus('completed')}
+                      onClick={() => handleUpdateStatus(TicketStatus.CLOSED)}
                       isLoading={updateMutation.isLoading}
                     >
                       Finalizar Chamado
                     </Button>
                   )}
                   
-                  {ticket.status === 'completed' && (
+                  {ticket.status === 'closed' && (
                     <Button
-                      variant="warning"
+                      variant="danger"
                       size="sm"
                       leftIcon={<AlertTriangle className="h-4 w-4" />}
-                      onClick={() => handleUpdateStatus('in_progress')}
+                      onClick={() => handleUpdateStatus(TicketStatus.IN_PROGRESS)}
                       isLoading={updateMutation.isLoading}
                     >
                       Reabrir Chamado

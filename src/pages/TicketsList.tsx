@@ -33,17 +33,28 @@ export function TicketsList() {
       });
       console.log('Tickets recebidos do backend:', response.data);
       
+      // Mapeia os dados para o formato esperado pelo frontend
+      const mappedTickets = response.data.map((ticket: any) => ({
+        ...ticket,
+        // Adiciona compatibilidade com os nomes esperados pelo frontend
+        clientId: ticket.client_id || ticket.clientId,
+        clientName: ticket.client_name || ticket.clientName,
+        technicianId: ticket.technician_id || ticket.technicianId,
+        technicianName: ticket.technician_name || ticket.technicianName,
+        companyName: ticket.company || ticket.companyName,
+      }));
+      
       // Log detalhado dos tickets para debug
-      if (response.data && response.data.length > 0) {
-        console.log('Amostra do primeiro ticket:', {
-          id: response.data[0].id,
-          title: response.data[0].title,
-          companyName: response.data[0].companyName,
-          clientName: response.data[0].clientName
+      if (mappedTickets.length > 0) {
+        console.log('Amostra do primeiro ticket mapeado:', {
+          id: mappedTickets[0].id,
+          title: mappedTickets[0].title,
+          companyName: mappedTickets[0].companyName,
+          clientName: mappedTickets[0].clientName
         });
       }
       
-      return response.data;
+      return mappedTickets;
     },
     {
       enabled: !!user,
