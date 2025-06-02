@@ -94,17 +94,109 @@ export const getAllTickets = async (params: GetTicketsParams): Promise<Ticket[]>
 };
 
 export const getTicketById = async (id: string): Promise<Ticket | null> => {
-  const { data, error } = await supabase
-    .from('tickets')
-    .select('*')
-    .eq('id', id)
-    .single();
+  console.log(`Buscando ticket com ID: ${id}`);
+  
+  try {
+    // Primeiro, buscamos o ticket básico
+    const { data: ticketData, error: ticketError } = await supabase
+      .from('tickets')
+      .select('*')
+      .eq('id', id)
+      .single();
+    
+    if (ticketError) {
+      console.error(`Erro ao buscar ticket: ${ticketError.message}`);
+      if (ticketError.code === 'PGRST116') return null;
+      throw new Error(`Erro ao buscar ticket por ID: ${ticketError.message}`);
+    }
+    
+    if (!ticketData) {
+      console.log(`Ticket não encontrado com ID: ${id}`);
+      return null;
+    }
+    
+    console.log(`Ticket encontrado: ${JSON.stringify(ticketData, null, 2)}`);
+    
+    // Agora buscamos informações adicionais
+    let clientName = 'Cliente Desconhecido';
+    let companyName = undefined;
+    let technicianName = undefined;
+    
+    // Buscar informações do cliente
+    if (ticketData.created_by) {
+      const { data: userData } = await supabase
+        .from('users')
+        .select('name')
+        .eq('id', ticketData.created_by)
+        .single();
+      
+      if (userData) {
+        clientName = userData.name;
+      }
+    }
+    
+    // Buscar informações da empresa
+    if (ticketData.company) {
+      const { data: companyData } = await supabase
+        .from('companies')
+        .select('name')
+        .eq('id', ticketData.company)
+        .single();
+      
+      if (companyData) {
+        companyName = companyData.name;
+      }
+    }
+    
+    // Buscar informações do técnico
+    if (ticketData.assigned_to) {
+      const { data: techData } = await supabase
+        .from('users')
+        .select('name')
+        .eq('id', ticketData.assigned_to)
+        .single();
+      
+      if (techData) {
+        technicianName = techData.name;
+      }
+    }
 
-  if (error) {
-    if (error.code === 'PGRST116') return null;
-    throw new Error(`Erro ao buscar ticket por ID: ${error.message}`);
+    // Tentar buscar o histórico do ticket separadamente
+    const { data: historyData } = await supabase
+      .from('ticket_comments')
+      .select('*')
+      .eq('ticket_id', id)
+      .order('created_at', { ascending: false });
+    
+    // Converter comentários para o formato de histórico esperado pelo frontend
+    const history = (historyData || []).map(comment => ({
+      id: comment.id,
+      ticketId: comment.ticket_id,
+      message: comment.content,
+      createdAt: comment.created_at,
+      createdBy: {
+        id: comment.user_id,
+        name: comment.user_name || 'Usuário',
+        role: comment.user_role || 'client'
+      }
+    }));
+    
+    // Formatar o resultado com todos os dados enriquecidos
+    const enrichedTicket = {
+      ...ticketData,
+      clientName,
+      companyName,
+      technicianName,
+      history: history || []
+    };
+    
+    console.log(`Ticket enriquecido: ${JSON.stringify(enrichedTicket, null, 2)}`);
+    
+    return enrichedTicket;
+  } catch (error) {
+    console.error(`Erro não tratado: ${error}`);
+    throw error;
   }
-  return data;
 };
 
 export const createTicket = async (ticketData: TicketCreate): Promise<Ticket> => {
