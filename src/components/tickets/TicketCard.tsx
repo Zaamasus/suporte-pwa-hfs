@@ -2,7 +2,7 @@ import { Ticket } from '../../types';
 import { Badge } from '../ui/Badge';
 import { Card, CardContent, CardHeader } from '../ui/Card';
 import { formatDate, getTicketStatusColor, getTicketStatusText } from '../../utils/formatters';
-import { MessageSquare, Clock } from 'lucide-react';
+import { MessageSquare, Clock, Building2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 interface TicketCardProps {
@@ -21,15 +21,30 @@ export function TicketCard({ ticket }: TicketCardProps) {
           <Badge variant={statusColor}>{statusText}</Badge>
         </CardHeader>
         <CardContent className="space-y-3">
+          {ticket.companyName && (
+            <div className="flex items-center text-sm text-gray-600 dark:text-gray-400 mb-1">
+              <Building2 className="mr-1 h-4 w-4 text-primary-500" />
+              <span className="font-medium">{ticket.companyName}</span>
+            </div>
+          )}
+          
           <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
             {ticket.description}
           </p>
           
-          {ticket.category && (
-            <Badge variant="default" className="mt-2">
-              {ticket.category}
-            </Badge>
-          )}
+          <div className="flex flex-wrap gap-2 mt-2">
+            {ticket.category && (
+              <Badge variant="default">
+                {ticket.category}
+              </Badge>
+            )}
+            
+            {ticket.clientName && (
+              <Badge variant="outline" className="text-xs">
+                Cliente: {ticket.clientName}
+              </Badge>
+            )}
+          </div>
           
           <div className="pt-2 flex items-center justify-between text-sm text-gray-500 dark:text-gray-400 border-t border-gray-100 dark:border-gray-700">
             <div className="flex items-center">

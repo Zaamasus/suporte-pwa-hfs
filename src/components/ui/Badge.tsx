@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
 import { twMerge } from 'tailwind-merge';
 
-type BadgeVariant = 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'info' | 'default';
+type BadgeVariant = 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'info' | 'default' | 'outline';
 type BadgeSize = 'sm' | 'md' | 'lg';
 
 interface BadgeProps {
@@ -20,6 +20,7 @@ export function Badge({ children, variant = 'default', size = 'md', className }:
     danger: 'bg-danger-100 text-danger-800 dark:bg-danger-900 dark:text-danger-300',
     info: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
     default: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300',
+    outline: 'bg-transparent border border-gray-300 text-gray-700 dark:border-gray-600 dark:text-gray-300',
   };
 
   const sizeClasses = {
