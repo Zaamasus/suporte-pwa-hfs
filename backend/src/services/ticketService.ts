@@ -90,7 +90,65 @@ export const getAllTickets = async (params: GetTicketsParams): Promise<Ticket[]>
     console.error('Erro ao buscar tickets no Supabase:', error);
     throw new Error(`Erro ao buscar tickets: ${error.message}`);
   }
-  return data || [];
+  
+  if (!data || data.length === 0) {
+    return [];
+  }
+  
+  console.log(`Encontrados ${data.length} tickets no banco. Enriquecendo com dados adicionais...`);
+  
+  // Enriquecer tickets com dados de empresa e cliente
+  const enrichedTickets = await Promise.all(data.map(async (ticket) => {
+    // Informações padrão
+    let clientName = 'Cliente Desconhecido';
+    let companyName = undefined;
+    
+    // Buscar informações do cliente que criou o ticket
+    if (ticket.created_by) {
+      const { data: userData } = await supabase
+        .from('users')
+        .select('name')
+        .eq('id', ticket.created_by)
+        .single();
+      
+      if (userData) {
+        clientName = userData.name;
+      }
+    }
+    
+    // Buscar informações da empresa
+    if (ticket.company) {
+      const { data: companyData } = await supabase
+        .from('companies')
+        .select('name')
+        .eq('id', ticket.company)
+        .single();
+      
+      if (companyData) {
+        companyName = companyData.name;
+      }
+    }
+    
+    return {
+      ...ticket,
+      clientName,
+      companyName,
+      // Para compatibilidade com a interface do frontend
+      history: []
+    };
+  }));
+  
+  console.log(`Retornando ${enrichedTickets.length} tickets enriquecidos`);
+  if (enrichedTickets.length > 0) {
+    console.log('Exemplo do primeiro ticket enriquecido:', JSON.stringify({
+      id: enrichedTickets[0].id,
+      title: enrichedTickets[0].title,
+      clientName: enrichedTickets[0].clientName,
+      companyName: enrichedTickets[0].companyName
+    }, null, 2));
+  }
+  
+  return enrichedTickets;
 };
 
 export const getTicketById = async (id: string): Promise<Ticket | null> => {
@@ -132,6 +190,7 @@ export const getTicketById = async (id: string): Promise<Ticket | null> => {
       
       if (userData) {
         clientName = userData.name;
+        console.log(`Cliente encontrado: ${clientName}`);
       }
     }
     
@@ -145,6 +204,7 @@ export const getTicketById = async (id: string): Promise<Ticket | null> => {
       
       if (companyData) {
         companyName = companyData.name;
+        console.log(`Empresa encontrada: ${companyName}`);
       }
     }
     
@@ -190,7 +250,12 @@ export const getTicketById = async (id: string): Promise<Ticket | null> => {
       history: history || []
     };
     
-    console.log(`Ticket enriquecido: ${JSON.stringify(enrichedTicket, null, 2)}`);
+    console.log(`Ticket enriquecido completo: ${JSON.stringify({
+      id: enrichedTicket.id, 
+      title: enrichedTicket.title,
+      clientName: enrichedTicket.clientName,
+      companyName: enrichedTicket.companyName
+    }, null, 2)}`);
     
     return enrichedTicket;
   } catch (error) {

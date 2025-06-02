@@ -32,6 +32,17 @@ export function TicketsList() {
         },
       });
       console.log('Tickets recebidos do backend:', response.data);
+      
+      // Log detalhado dos tickets para debug
+      if (response.data && response.data.length > 0) {
+        console.log('Amostra do primeiro ticket:', {
+          id: response.data[0].id,
+          title: response.data[0].title,
+          companyName: response.data[0].companyName,
+          clientName: response.data[0].clientName
+        });
+      }
+      
       return response.data;
     },
     {
