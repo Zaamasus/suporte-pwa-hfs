@@ -1,6 +1,8 @@
 /**
- * Tipos para o sistema de suporte técnico
+ * Tipos para o sistema de suporte técnico (Backend)
  */
+
+import { Request } from 'express';
 
 // Usuário
 export interface User {
@@ -90,7 +92,7 @@ export interface JwtPayload {
 }
 
 // Requisição com usuário autenticado
-export interface AuthRequest extends Express.Request {
+export interface AuthRequest extends Request {
   user?: JwtPayload;
 }
 
@@ -106,79 +108,4 @@ export interface DatabaseConfig {
   sqlitePath?: string;
   supabaseUrl?: string;
   supabaseKey?: string;
-}
-
-// Auth Types
-export interface AuthState {
-  user: User | null;
-  token: string | null;
-  isAuthenticated: boolean;
-  isLoading: boolean;
-  error: string | null;
-}
-
-// Ticket Types
-export type TicketHistory = {
-  id: string;
-  ticketId: string;
-  message: string;
-  createdAt: string;
-  createdBy: {
-    id: string;
-    name: string;
-    role: 'client' | 'technician' | 'admin';
-  };
-};
-
-export interface Ticket {
-  id: string;
-  title: string;
-  description: string;
-  status: TicketStatus;
-  priority: TicketPriority;
-  clientId: string;
-  clientName: string;
-  companyName?: string;
-  technicianId?: string;
-  technicianName?: string;
-  createdAt: string;
-  updatedAt: string;
-  history: TicketHistory[];
-  category?: string;
-}
-
-// UI Types
-export type Theme = 'dark' | 'light';
-
-// Chat Types
-export interface Message {
-  id: string;
-  content: string;
-  senderId: string;
-  senderName: string;
-  senderRole: 'client' | 'technician' | 'admin';
-  ticketId: string;
-  createdAt: string;
-}
-
-export interface ChatSession {
-  id: string;
-  ticketId: string;
-  messages: Message[];
-  participants: {
-    id: string;
-    name: string;
-    role: 'client' | 'technician' | 'admin';
-  }[];
-  isActive: boolean;
-  startedAt: string;
-  endedAt?: string;
-}
-
-// Technician Types
-export interface Technician extends User {
-  isOnline: boolean;
-  specialties?: string[];
-  assignedTickets?: number;
-  completedTickets?: number;
-}
+} 

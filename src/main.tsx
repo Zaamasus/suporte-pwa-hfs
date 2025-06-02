@@ -14,25 +14,11 @@ import { ErrorFallback } from './components/common/ErrorFallback';
 if (import.meta.env.PROD) { // Se estiver em produção (build)
   axios.defaults.baseURL = 'https://hfs-backend.onrender.com'; // URL do backend no Render.com
 } else { // Em desenvolvimento
-  axios.defaults.baseURL = 'http://localhost:4000'; // O backend roda na porta 4000 localmente
+  axios.defaults.baseURL = 'http://localhost:3000'; // O backend roda na porta 3000 localmente
+  console.log('Conectando ao backend em:', axios.defaults.baseURL);
 }
 
-// Initialize mock service worker in development
 async function prepareApp() {
-  if (import.meta.env.DEV) {
-    try {
-      const { worker } = await import('./mocks/browser');
-      await worker.start({
-        onUnhandledRequest: 'bypass',
-        serviceWorker: {
-          url: '/mockServiceWorker.js'
-        }
-      });
-    } catch (error) {
-      console.warn('MSW initialization failed:', error);
-    }
-  }
-
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: {

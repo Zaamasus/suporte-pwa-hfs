@@ -33,7 +33,7 @@ export function LoginForm() {
   });
 
   const onSubmit = async (data: LoginFormData) => {
-    await login(data.email, data.password, data.remember || false);
+    await login(data.email.trim(), data.password.trim(), data.remember || false);
   };
 
   return (
