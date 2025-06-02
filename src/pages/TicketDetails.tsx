@@ -233,19 +233,39 @@ export function TicketDetails() {
                       Iniciar Atendimento
                     </Button>
                   )}
-                  
                   {ticket.status === 'in_progress' && (
+                    <>
+                      <Button
+                        variant="danger"
+                        size="sm"
+                        leftIcon={<AlertTriangle className="h-4 w-4" />}
+                        onClick={() => handleUpdateStatus(TicketStatus.PAUSED)}
+                        isLoading={updateMutation.isLoading}
+                      >
+                        Pausar
+                      </Button>
+                      <Button
+                        variant="success"
+                        size="sm"
+                        leftIcon={<CheckCircle className="h-4 w-4" />}
+                        onClick={() => handleUpdateStatus(TicketStatus.CLOSED)}
+                        isLoading={updateMutation.isLoading}
+                      >
+                        Finalizar Chamado
+                      </Button>
+                    </>
+                  )}
+                  {ticket.status === 'paused' && (
                     <Button
-                      variant="success"
+                      variant="primary"
                       size="sm"
-                      leftIcon={<CheckCircle className="h-4 w-4" />}
-                      onClick={() => handleUpdateStatus(TicketStatus.CLOSED)}
+                      leftIcon={<RefreshCw className="h-4 w-4" />}
+                      onClick={() => handleUpdateStatus(TicketStatus.IN_PROGRESS)}
                       isLoading={updateMutation.isLoading}
                     >
-                      Finalizar Chamado
+                      Retomar Atendimento
                     </Button>
                   )}
-                  
                   {ticket.status === 'closed' && (
                     <Button
                       variant="danger"

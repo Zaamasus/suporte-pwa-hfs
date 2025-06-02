@@ -104,11 +104,11 @@ export const getAllTickets = async (params: GetTicketsParams): Promise<Ticket[]>
     let companyName = undefined;
     
     // Buscar informações do cliente que criou o ticket
-    if (ticket.created_by) {
+    if (ticket.client_id) {
       const { data: userData } = await supabase
         .from('users')
         .select('name')
-        .eq('id', ticket.created_by)
+        .eq('id', ticket.client_id)
         .single();
       
       if (userData) {
@@ -181,11 +181,11 @@ export const getTicketById = async (id: string): Promise<Ticket | null> => {
     let technicianName = undefined;
     
     // Buscar informações do cliente
-    if (ticketData.created_by) {
+    if (ticketData.client_id) {
       const { data: userData } = await supabase
         .from('users')
         .select('name')
-        .eq('id', ticketData.created_by)
+        .eq('id', ticketData.client_id)
         .single();
       
       if (userData) {
@@ -221,23 +221,22 @@ export const getTicketById = async (id: string): Promise<Ticket | null> => {
       }
     }
 
-    // Tentar buscar o histórico do ticket separadamente
+    // Buscar histórico do ticket na tabela ticket_history
     const { data: historyData } = await supabase
-      .from('ticket_comments')
+      .from('ticket_history')
       .select('*')
       .eq('ticket_id', id)
       .order('created_at', { ascending: false });
-    
-    // Converter comentários para o formato de histórico esperado pelo frontend
-    const history = (historyData || []).map(comment => ({
-      id: comment.id,
-      ticketId: comment.ticket_id,
-      message: comment.content,
-      createdAt: comment.created_at,
+    // Converter histórico para o formato esperado pelo frontend
+    const history = (historyData || []).map(entry => ({
+      id: entry.id,
+      ticketId: entry.ticket_id,
+      message: entry.message,
+      createdAt: entry.created_at,
       createdBy: {
-        id: comment.user_id,
-        name: comment.user_name || 'Usuário',
-        role: comment.user_role || 'client'
+        id: entry.user_id,
+        name: entry.user_name || 'Usuário',
+        role: entry.user_role || 'client'
       }
     }));
     
@@ -277,7 +276,24 @@ export const createTicket = async (ticketData: TicketCreate): Promise<Ticket> =>
   return data;
 };
 
-export const updateTicket = async (id: string, ticketData: TicketUpdate): Promise<Ticket | null> => {
+export const updateTicket = async (id: string, ticketData: TicketUpdate & { historyEntry?: any }): Promise<Ticket | null> => {
+  // Padronizar status concluído
+  if (ticketData.status && ['completed', 'concluido', 'resolved', 'finalizado'].includes(ticketData.status)) {
+    ticketData.status = 'closed';
+  }
+  // Se historyEntry vier, registrar no histórico
+  if (ticketData.historyEntry) {
+    const { message, createdBy } = ticketData.historyEntry;
+    await supabase.from('ticket_history').insert({
+      ticket_id: id,
+      user_id: createdBy.id,
+      user_name: createdBy.name,
+      user_role: createdBy.role,
+      message,
+    });
+    // Remove historyEntry do objeto antes de atualizar o ticket
+    delete ticketData.historyEntry;
+  }
   const { data, error } = await supabase
     .from('tickets')
     .update(ticketData)

@@ -9,7 +9,7 @@ interface TicketHistoryProps {
 
 export function TicketHistory({ history }: TicketHistoryProps) {
   return (
-    <Card>
+    <Card className="border border-gray-100 dark:border-gray-800 bg-white/80 dark:bg-dark-200/80 backdrop-blur-sm">
       <CardHeader className="bg-gray-50 dark:bg-dark-300">
         <h3 className="text-lg font-medium">Histórico do Chamado</h3>
       </CardHeader>
@@ -31,36 +31,45 @@ export function TicketHistory({ history }: TicketHistoryProps) {
               : entry.createdBy.role === 'technician'
                 ? <Shield className="w-4 h-4 text-green-500" />
                 : <Shield className="w-4 h-4 text-gray-500" />;
-            // Detectar status na mensagem para colorir o badge
+            
             let statusColor = '';
             if (isStatusChange) {
-              if (entry.message.includes('Em aberto')) statusColor = 'bg-yellow-500 text-white';
-              else if (entry.message.includes('Em andamento')) statusColor = 'bg-blue-600 text-white';
-              else if (entry.message.includes('Em pausa')) statusColor = 'bg-orange-600 text-white';
-              else if (entry.message.includes('Concluído')) statusColor = 'bg-green-600 text-white';
+              if (entry.message.includes('Em aberto')) statusColor = 'bg-yellow-50 text-yellow-700 border border-yellow-200';
+              else if (entry.message.includes('Em andamento')) statusColor = 'bg-blue-50 text-blue-700 border border-blue-200';
+              else if (entry.message.includes('Em pausa')) statusColor = 'bg-orange-50 text-orange-700 border border-orange-200';
+              else if (entry.message.includes('Concluído')) statusColor = 'bg-green-50 text-green-700 border border-green-200';
             }
+
             return (
-              <div key={entry.id} className="py-3">
+              <div key={entry.id} className="py-4">
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-2">
-                    {roleIcon}
-                    <span className="text-sm font-semibold">{entry.createdBy.name}</span>
-                    <span className="text-xs text-gray-500 dark:text-gray-400">({roleLabel})</span>
+                    <div className="p-1.5 rounded-lg bg-gray-50 dark:bg-gray-800">
+                      {roleIcon}
+                    </div>
+                    <div>
+                      <span className="text-sm font-medium text-gray-900 dark:text-white">{entry.createdBy.name}</span>
+                      <span className="text-xs text-gray-500 dark:text-gray-400 ml-2">({roleLabel})</span>
+                    </div>
                   </div>
                   <span className="text-xs text-gray-500 dark:text-gray-400">
                     {formatDateTime(entry.createdAt)}
                   </span>
                 </div>
                 {isStatusChange ? (
-                  <div className="mt-2 flex items-center gap-2">
-                    <RefreshCw className="w-4 h-4 text-primary-500" />
-                    <span className={`text-xs font-semibold px-2 py-1 rounded ${statusColor}`}>
+                  <div className="mt-3 flex items-center gap-2">
+                    <div className="p-1.5 rounded-lg bg-primary-50 dark:bg-primary-900/20">
+                      <RefreshCw className="w-4 h-4 text-primary-500" />
+                    </div>
+                    <span className={`text-xs font-medium px-2.5 py-1 rounded-md ${statusColor}`}>
                       {entry.message}
                     </span>
                   </div>
                 ) : (
-                  <div className="mt-2 flex items-center gap-2">
-                    <MessageSquare className="w-4 h-4 text-gray-400" />
+                  <div className="mt-3 flex items-center gap-2">
+                    <div className="p-1.5 rounded-lg bg-gray-50 dark:bg-gray-800">
+                      <MessageSquare className="w-4 h-4 text-gray-400" />
+                    </div>
                     <span className="text-sm text-gray-700 dark:text-gray-300">{entry.message}</span>
                   </div>
                 )}

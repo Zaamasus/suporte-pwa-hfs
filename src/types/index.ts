@@ -182,3 +182,12 @@ export interface Technician extends User {
   assignedTickets?: number;
   completedTickets?: number;
 }
+
+export interface Attachment {
+  id: string;
+  url: string;
+  originalname: string;
+  mimetype: string;
+  size: number;
+  createdAt: string;
+}
