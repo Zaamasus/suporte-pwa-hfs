@@ -1,7 +1,16 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import axios from 'axios';
 import { User, AuthState } from '../types';
-import { saveToken, saveUser, getToken, getUser, removeToken, removeUser } from '../utils/authUtils';
+import { 
+  saveToken, 
+  saveUser, 
+  getToken, 
+  getUser, 
+  removeToken, 
+  removeUser, 
+  saveCredentials, 
+  removeCredentials 
+} from '../utils/authUtils';
 
 interface AuthContextType extends AuthState {
   login: (email: string, password: string, remember: boolean) => Promise<void>;
@@ -58,6 +67,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       // Save auth data
       saveToken(token, remember);
       saveUser(user);
+      
+      // Se "lembrar-me" estiver marcado, salve as credenciais
+      if (remember) {
+        saveCredentials(email, password);
+      } else {
+        // Se não estiver marcado, remova credenciais salvas anteriormente
+        removeCredentials();
+      }
 
       // Set axios default auth header
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
@@ -82,6 +99,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     // Remove auth data
     removeToken();
     removeUser();
+    // Não remova as credenciais salvas no logout para permitir o login automático na próxima visita
+    // removeCredentials();
 
     // Remove axios default auth header
     delete axios.defaults.headers.common['Authorization'];

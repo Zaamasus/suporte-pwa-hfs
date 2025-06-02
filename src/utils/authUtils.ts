@@ -55,3 +55,39 @@ export const isClient = (user: User | null): boolean => {
 export const isAdmin = (user: User | null): boolean => {
   return user?.role === 'admin';
 };
+
+// Funções para salvar e recuperar credenciais quando "Lembrar-me" estiver marcado
+
+// Salvar credenciais no localStorage
+export const saveCredentials = (email: string, password: string) => {
+  // Armazene o email como está e a senha com uma criptografia simples para não ficar em texto plano
+  // (Nota: esta não é uma criptografia segura, apenas um ofuscamento básico)
+  const encodedPassword = btoa(password);
+  localStorage.setItem('remembered_email', email);
+  localStorage.setItem('remembered_password', encodedPassword);
+};
+
+// Recuperar credenciais do localStorage
+export const getCredentials = (): { email: string; password: string } | null => {
+  const email = localStorage.getItem('remembered_email');
+  const encodedPassword = localStorage.getItem('remembered_password');
+  
+  if (!email || !encodedPassword) {
+    return null;
+  }
+  
+  try {
+    const password = atob(encodedPassword);
+    return { email, password };
+  } catch (error) {
+    // Em caso de erro na decodificação, limpa os dados
+    removeCredentials();
+    return null;
+  }
+};
+
+// Remover credenciais do localStorage
+export const removeCredentials = () => {
+  localStorage.removeItem('remembered_email');
+  localStorage.removeItem('remembered_password');
+};

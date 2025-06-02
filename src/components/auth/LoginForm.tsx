@@ -4,8 +4,9 @@ import { z } from 'zod';
 import { Input } from '../ui/Input';
 import { Button } from '../ui/Button';
 import { Mail, Lock, LogIn } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
+import { getCredentials } from '../../utils/authUtils';
 
 const loginSchema = z.object({
   email: z.string().email('Email inválido'),
@@ -23,6 +24,7 @@ export function LoginForm() {
     register,
     handleSubmit,
     formState: { errors },
+    setValue,
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -31,6 +33,16 @@ export function LoginForm() {
       remember: false,
     },
   });
+
+  // Carrega credenciais salvas ao montar o componente
+  useEffect(() => {
+    const savedCredentials = getCredentials();
+    if (savedCredentials) {
+      setValue('email', savedCredentials.email);
+      setValue('password', savedCredentials.password);
+      setValue('remember', true); // Marca a opção "Lembrar-me" automaticamente
+    }
+  }, [setValue]);
 
   const onSubmit = async (data: LoginFormData) => {
     await login(data.email.trim(), data.password.trim(), data.remember || false);
