@@ -64,9 +64,9 @@ export const getAllTickets = async (params: GetTicketsParams): Promise<Ticket[]>
     } else {
         query = query.eq('created_by', params.userId);
     }
-  } else if (params.userRole === 'technician') {
-    query = query.or(`assigned_to.eq.${params.userId},assigned_to.is.null`);
-  } else if (params.userRole !== 'admin') {
+  }
+  // Técnicos e admins veem todos os tickets (sem filtro)
+  else if (params.userRole !== 'admin' && params.userRole !== 'technician') {
     console.warn(`Papel de usuário desconhecido ou não autorizado para visualização geral: ${params.userRole}`);
     return [];
   }
