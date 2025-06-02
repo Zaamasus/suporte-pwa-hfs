@@ -48,10 +48,10 @@ export interface Ticket {
 }
 
 export enum TicketStatus {
-  OPEN = 'open',
-  IN_PROGRESS = 'in_progress',
-  WAITING = 'waiting',
-  CLOSED = 'closed'
+  OPEN = 'open',           // Em aberto
+  IN_PROGRESS = 'in_progress', // Em andamento
+  PAUSED = 'paused',       // Em pausa
+  CLOSED = 'closed'        // Finalizado
 }
 
 export enum TicketPriority {
