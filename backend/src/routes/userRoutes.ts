@@ -1,25 +1,26 @@
 import { Router } from 'express';
 import * as userController from '../controllers/userController';
-import { authMiddleware } from '../middlewares/authMiddleware';
+import { protect } from '../middlewares/authMiddleware';
+import { wrapController } from '../utils/controllerWrapper';
 
 const router = Router();
 
 // Rotas protegidas - requerem autenticação
-router.use(authMiddleware as any);
+router.use(protect);
 
 // Obter usuário atual
-router.get('/me', userController.getCurrentUser as any);
+router.get('/me', wrapController(userController.getCurrentUser));
 
 // Obter todos os usuários
-router.get('/', userController.getAllUsers as any);
+router.get('/', wrapController(userController.getAllUsers));
 
 // Obter usuário por ID
-router.get('/:id', userController.getUserById as any);
+router.get('/:id', wrapController(userController.getUserById));
 
 // Atualizar usuário
-router.put('/:id', userController.updateUser as any);
+router.put('/:id', wrapController(userController.updateUser));
 
 // Excluir usuário
-router.delete('/:id', userController.deleteUser as any);
+router.delete('/:id', wrapController(userController.deleteUser));
 
 export default router; 
