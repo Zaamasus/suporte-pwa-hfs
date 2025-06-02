@@ -22,9 +22,9 @@ export function TicketCard({ ticket }: TicketCardProps) {
         </CardHeader>
         <CardContent className="space-y-3">
           {ticket.companyName && (
-            <div className="flex items-center text-sm text-gray-600 dark:text-gray-400 mb-1">
-              <Building2 className="mr-1 h-4 w-4 text-primary-500" />
-              <span className="font-medium">{ticket.companyName}</span>
+            <div className="flex items-center text-sm font-medium bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 p-2 rounded-md mb-2">
+              <Building2 className="mr-2 h-4 w-4" />
+              <span>Empresa: {ticket.companyName}</span>
             </div>
           )}
           
@@ -32,7 +32,7 @@ export function TicketCard({ ticket }: TicketCardProps) {
             {ticket.description}
           </p>
           
-          <div className="flex flex-wrap gap-2 mt-2">
+          <div className="flex flex-wrap gap-2">
             {ticket.category && (
               <Badge variant="default">
                 {ticket.category}
@@ -40,7 +40,7 @@ export function TicketCard({ ticket }: TicketCardProps) {
             )}
             
             {ticket.clientName && (
-              <Badge variant="outline" className="text-xs">
+              <Badge variant="secondary" className="text-xs">
                 Cliente: {ticket.clientName}
               </Badge>
             )}
