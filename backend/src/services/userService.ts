@@ -80,4 +80,16 @@ export const deleteUser = async (id: string): Promise<boolean> => {
   }
   
   return true;
+};
+
+export const getAllTechnicians = async (): Promise<User[]> => {
+  const { data, error } = await supabase
+    .from('users')
+    .select('id, name, email, company, role, specialties, created_at, updated_at')
+    .eq('role', 'technician');
+
+  if (error) {
+    throw new Error(`Erro ao buscar técnicos: ${error.message}`);
+  }
+  return data || [];
 }; 

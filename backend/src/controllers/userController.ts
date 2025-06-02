@@ -1,5 +1,11 @@
 import { Request, Response } from 'express';
 import * as userService from '../services/userService';
+import { UserPayload } from '../middlewares/authMiddleware';
+
+// Estendendo a interface Request localmente para o TypeScript reconhecer req.user
+interface AuthenticatedRequest extends Request {
+  user: UserPayload; // Aqui garantimos que req.user é do tipo UserPayload e não é undefined
+}
 
 // Obter usuário atual
 export const getCurrentUser = async (req: Request, res: Response) => {
@@ -7,7 +13,9 @@ export const getCurrentUser = async (req: Request, res: Response) => {
     if (!req.user) {
       return res.status(401).json({ message: 'Usuário não autenticado (erro inesperado no controller)' });
     }
-    const user = await userService.getUserById(req.user.id);
+    const authenticatedReq = req as AuthenticatedRequest;
+    
+    const user = await userService.getUserById(authenticatedReq.user.id);
     
     if (!user) {
       return res.status(404).json({ message: 'Usuário não encontrado' });
@@ -27,6 +35,7 @@ export const getAllUsers = async (req: Request, res: Response) => {
     if (!req.user || req.user.role !== 'admin') {
       return res.status(403).json({ message: 'Não autorizado para ver todos os usuários' });
     }
+    
     const users = await userService.getAllUsers();
     return res.json(users);
   } catch (error) {
@@ -58,10 +67,12 @@ export const updateUser = async (req: Request, res: Response) => {
     if (!req.user) {
       return res.status(401).json({ message: 'Usuário não autenticado (erro inesperado no controller)' });
     }
+    const authenticatedReq = req as AuthenticatedRequest;
+    
     const { id } = req.params;
     const userData = req.body;
     
-    if (req.user.id !== id && req.user.role !== 'admin') {
+    if (authenticatedReq.user.id !== id && authenticatedReq.user.role !== 'admin') {
       return res.status(403).json({ message: 'Não autorizado para atualizar este usuário' });
     }
     
@@ -87,13 +98,15 @@ export const deleteUser = async (req: Request, res: Response) => {
     if (!req.user) {
       return res.status(401).json({ message: 'Usuário não autenticado (erro inesperado no controller)' });
     }
+    const authenticatedReq = req as AuthenticatedRequest;
+    
     const { id } = req.params;
     
-    if (req.user.id !== id && req.user.role !== 'admin') {
+    if (authenticatedReq.user.id !== id && authenticatedReq.user.role !== 'admin') {
       return res.status(403).json({ message: 'Não autorizado para excluir este usuário' });
     }
     
-    if (req.user.id === id && req.user.role === 'admin') {
+    if (authenticatedReq.user.id === id && authenticatedReq.user.role === 'admin') {
       // Lógica para impedir admin de se auto-excluir pode ser adicionada aqui se desejado
     }
 
@@ -107,5 +120,14 @@ export const deleteUser = async (req: Request, res: Response) => {
   } catch (error) {
     console.error('Erro ao excluir usuário:', error);
     return res.status(500).json({ message: 'Erro interno do servidor' });
+  }
+};
+
+export const getAllTechnicians = async (req: Request, res: Response) => {
+  try {
+    const technicians = await userService.getAllTechnicians();
+    res.json(technicians);
+  } catch (error) {
+    res.status(500).json({ message: 'Erro ao buscar técnicos' });
   }
 }; 

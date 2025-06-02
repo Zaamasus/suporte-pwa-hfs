@@ -14,6 +14,9 @@ router.get('/me', wrapController(userController.getCurrentUser));
 // Obter todos os usuários
 router.get('/', wrapController(userController.getAllUsers));
 
+// Listar técnicos disponíveis
+router.get('/technicians', wrapController(userController.getAllTechnicians));
+
 // Obter usuário por ID
 router.get('/:id', wrapController(userController.getUserById));
 

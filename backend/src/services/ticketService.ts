@@ -60,17 +60,17 @@ export const getAllTickets = async (params: GetTicketsParams): Promise<Ticket[]>
   // Lógica de filtro baseada no papel do usuário
   if (params.userRole === 'client') {
     if (params.company) {
-        query = query.eq('company', params.company);
+      query = query.eq('company', params.company);
     } else {
-        query = query.eq('created_by', params.userId);
+      query = query.eq('created_by', params.userId);
     }
-  }
-  // Técnicos e admins veem todos os tickets (sem filtro)
-  else if (params.userRole !== 'admin' && params.userRole !== 'technician') {
+  } else if (params.userRole === 'technician' || params.userRole === 'admin') {
+    // Técnicos e admins veem todos os tickets (NÃO aplica filtro)
+  } else {
+    // Qualquer outro papel não autorizado
     console.warn(`Papel de usuário desconhecido ou não autorizado para visualização geral: ${params.userRole}`);
     return [];
   }
-  // Admins veem todos os tickets
 
   if (params.search) {
     query = query.or(`title.ilike.%${params.search}%,description.ilike.%${params.search}%`);
