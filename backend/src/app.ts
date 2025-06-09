@@ -8,21 +8,24 @@ import { errorHandler } from './middlewares/errorMiddleware';
 
 const app = express();
 
-// Configuração do CORS
-app.use(cors({
-  origin: 'https://zaamasus.github.io',
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  exposedHeaders: ['Content-Range', 'X-Content-Range'],
-  preflightContinue: false,
-  optionsSuccessStatus: 204
-}));
+const allowedOrigins = [
+  'https://zaamasus.github.io',
+  'https://zaamasus.github.io/suporte-pwa-hfs',
+  'http://localhost:5173'
+];
 
-// Middleware para garantir headers CORS em todas as respostas
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', 'https://zaamasus.github.io');
+  const origin = req.headers.origin;
+  if (origin && allowedOrigins.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin);
+  }
   res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
+  res.header('Access-Control-Max-Age', '86400');
+  if (req.method === 'OPTIONS') {
+    return res.status(204).end();
+  }
   next();
 });
 
