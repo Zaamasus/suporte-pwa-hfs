@@ -1,116 +1,75 @@
-import { useEffect } from 'react';
-import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
-import { useAuth } from './contexts/AuthContext';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
+import { QueryClient, QueryClientProvider } from 'react-query';
+import { ThemeProvider } from './contexts/ThemeContext';
 
 // Pages
 import { Login } from './pages/Login';
+import { Register } from './pages/Register';
 import { Dashboard } from './pages/Dashboard';
-import { TicketsList } from './pages/TicketsList';
-import { TicketDetails } from './pages/TicketDetails';
-import { NewTicket } from './pages/NewTicket';
-import { NewClient } from './pages/NewClient';
 import { ClientsList } from './pages/ClientsList';
 import { ClientEdit } from './pages/ClientEdit';
+import { CompanyPanel } from './pages/CompanyPanel';
+import { CompaniesList } from './pages/CompaniesList';
+import { CompanyEdit } from './pages/CompanyEdit';
+import { TicketsList } from './pages/TicketsList';
+import { TicketDetails } from './pages/TicketDetails';
+import { Profile } from './pages/Profile';
 
 // Components
-import { ErrorFallback } from './components/common/ErrorFallback';
+import { PrivateRoute } from './components/auth/PrivateRoute';
 
-// Utils
-import { isClient, isTechnician } from './utils/authUtils';
-
-// Protected Route Component
-const ProtectedRoute = ({ children, allowedRoles }: { children: JSX.Element, allowedRoles?: string[] }) => {
-  const { isAuthenticated, user } = useAuth();
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (!isAuthenticated) {
-      navigate('/login');
-    } else if (allowedRoles && user && !allowedRoles.includes(user.role)) {
-      navigate('/');
-    }
-  }, [isAuthenticated, user, allowedRoles, navigate]);
-
-  return isAuthenticated ? children : null;
-};
+// Configuração do React Query
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      retry: false,
+    },
+  },
+});
 
 function App() {
   return (
-    <Routes>
-      <Route path="/login" element={<Login />} errorElement={<ErrorFallback />} />
-      
-      <Route 
-        path="/" 
-        element={
-          <ProtectedRoute>
-            <Dashboard />
-          </ProtectedRoute>
-        }
-        errorElement={<ErrorFallback />}
-      />
-      
-      <Route 
-        path="/tickets" 
-        element={
-          <ProtectedRoute>
-            <TicketsList />
-          </ProtectedRoute>
-        }
-        errorElement={<ErrorFallback />}
-      />
-      
-      <Route 
-        path="/tickets/:id" 
-        element={
-          <ProtectedRoute>
-            <TicketDetails />
-          </ProtectedRoute>
-        }
-        errorElement={<ErrorFallback />}
-      />
-      
-      <Route 
-        path="/tickets/new" 
-        element={
-          <ProtectedRoute allowedRoles={['client']}>
-            <NewTicket />
-          </ProtectedRoute>
-        }
-        errorElement={<ErrorFallback />}
-      />
-      
-      <Route 
-        path="/clients/new" 
-        element={
-          <ProtectedRoute allowedRoles={['technician', 'admin']}>
-            <NewClient />
-          </ProtectedRoute>
-        }
-        errorElement={<ErrorFallback />}
-      />
-      
-      <Route 
-        path="/clients" 
-        element={
-          <ProtectedRoute allowedRoles={['technician', 'admin']}>
-            <ClientsList />
-          </ProtectedRoute>
-        }
-        errorElement={<ErrorFallback />}
-      />
-      
-      <Route 
-        path="/clients/edit/:id" 
-        element={
-          <ProtectedRoute allowedRoles={['technician', 'admin']}>
-            <ClientEdit />
-          </ProtectedRoute>
-        }
-        errorElement={<ErrorFallback />}
-      />
-      
-      <Route path="*" element={<Navigate to="/\" replace />} errorElement={<ErrorFallback />} />
-    </Routes>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider>
+        <BrowserRouter>
+          <Routes>
+            {/* Rotas públicas */}
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            
+            {/* Rotas privadas */}
+            <Route path="/" element={<PrivateRoute />}>
+              <Route index element={<Dashboard />} />
+              
+              {/* Rotas de clientes */}
+              <Route path="clients" element={<ClientsList />} />
+              <Route path="clients/new" element={<ClientEdit />} />
+              <Route path="clients/edit/:id" element={<ClientEdit />} />
+              
+              {/* Rotas de empresas */}
+              <Route path="companies" element={<CompaniesList />} />
+              <Route path="companies/new" element={<CompanyEdit />} />
+              <Route path="companies/edit/:id" element={<CompanyEdit />} />
+              <Route path="companies/:companyName" element={<CompanyPanel />} />
+              
+              {/* Rotas de tickets */}
+              <Route path="tickets" element={<TicketsList />} />
+              <Route path="tickets/:id" element={<TicketDetails />} />
+              
+              {/* Perfil do usuário */}
+              <Route path="profile" element={<Profile />} />
+            </Route>
+            
+            {/* Redirecionamento para o login */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </BrowserRouter>
+        
+        <Toaster position="top-right" />
+      </ThemeProvider>
+    </QueryClientProvider>
   );
 }
 

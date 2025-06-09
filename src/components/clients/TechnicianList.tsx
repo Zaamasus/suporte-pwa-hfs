@@ -1,9 +1,8 @@
 import { useQuery } from 'react-query';
 import axios from 'axios';
-import { Technician } from '../../types';
 import { Card, CardContent, CardHeader } from '../ui/Card';
 import { Badge } from '../ui/Badge';
-import { MessageCircle } from 'lucide-react';
+import { FaWhatsapp } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import { Button } from '../ui/Button';
 import { useAuth } from '../../contexts/AuthContext';
@@ -69,7 +68,7 @@ export function TechnicianList() {
 
   // Debug: log do resultado da query
   useEffect(() => {
-    if (technicians) {
+    if (technicians) { 
       console.log('Técnicos carregados:', technicians.length);
     }
   }, [technicians]);
@@ -130,15 +129,55 @@ export function TechnicianList() {
                 <div className="text-sm text-gray-600 dark:text-gray-400">
                   {technician.specialties?.join(', ') || 'Suporte Geral'}
                 </div>
-                <Link to={`/chat/${technician.id}`}>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    leftIcon={<MessageCircle className="h-4 w-4" />}
-                  >
-                    Conversar
-                  </Button>
-                </Link>
+                {(() => {
+                  // Botão especial para Hilton e Samuele Hilton
+                  if (technician.name.toLowerCase().includes('hilton')) {
+                    return (
+                      <a
+                        href="https://wa.me/553196227738"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          leftIcon={<FaWhatsapp className="h-4 w-4" />}
+                        >
+                          WhatsApp Hilton
+                        </Button>
+                      </a>
+                    );
+                  }
+                  if (technician.name.toLowerCase().includes('samuel')) {
+                    return (
+                      <a
+                        href="https://wa.me/553181142120"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          leftIcon={<FaWhatsapp className="h-4 w-4" />}
+                        >
+                          WhatsApp Samuel
+                        </Button>
+                      </a>
+                    );
+                  }
+                  // Para os demais técnicos, chat interno
+                  return (
+                    <Link to={`/chat/${technician.id}`}>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        leftIcon={<FaWhatsapp className="h-4 w-4" />}
+                      >
+                        Conversar
+                      </Button>
+                    </Link>
+                  );
+                })()}
               </div>
             </CardContent>
           </Card>

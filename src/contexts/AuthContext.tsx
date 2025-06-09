@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import axios from 'axios';
-import { User, AuthState } from '../types';
+import { User, AuthState } from '../types/index';
 import { 
   saveToken, 
   saveUser, 

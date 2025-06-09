@@ -4,6 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Input } from '../components/ui/Input';
 import { Button } from '../components/ui/Button';
+import { Layout } from '../components/layout/Layout';
 
 interface ClientFormData {
   name: string;
@@ -45,46 +46,48 @@ export function ClientEdit() {
   };
 
   return (
-    <div className="max-w-xl mx-auto py-8">
-      <h1 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Editar Cliente</h1>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 bg-white dark:bg-dark-200 p-6 rounded-lg shadow">
-        <Input
-          label="Nome"
-          {...register('name', { required: 'Nome é obrigatório' })}
-          error={errors.name?.message}
-          disabled={isSubmitting}
-        />
-        <Input
-          label="Email"
-          type="email"
-          {...register('email', { required: 'Email é obrigatório' })}
-          error={errors.email?.message}
-          disabled={isSubmitting}
-        />
-       
-        <Input
-          label="Nova Senha (opcional)"
-          type="password"
-          {...register('password')}
-          error={errors.password?.message}
-          disabled={isSubmitting}
-        />
-        <div>
-          <label className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              {...register('is_blocked')}
-              disabled={isSubmitting}
-            />
-            Bloquear funcionário no sistema
-          </label>
-        </div>
-        <div className="flex justify-end">
-          <Button type="submit" isLoading={isSubmitting}>
-            Salvar Alterações
-          </Button>
-        </div>
-      </form>
-    </div>
+    <Layout>
+      <div className="max-w-xl mx-auto py-8">
+        <h1 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Editar Cliente</h1>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 bg-white dark:bg-dark-200 p-6 rounded-lg shadow">
+          <Input
+            label="Nome"
+            {...register('name', { required: 'Nome é obrigatório' })}
+            error={errors.name?.message}
+            disabled={isSubmitting}
+          />
+          <Input
+            label="Email"
+            type="email"
+            {...register('email', { required: 'Email é obrigatório' })}
+            error={errors.email?.message}
+            disabled={isSubmitting}
+          />
+         
+          <Input
+            label="Nova Senha (opcional)"
+            type="password"
+            {...register('password')}
+            error={errors.password?.message}
+            disabled={isSubmitting}
+          />
+          <div>
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                {...register('is_blocked')}
+                disabled={isSubmitting}
+              />
+              Bloquear funcionário no sistema
+            </label>
+          </div>
+          <div className="flex justify-end">
+            <Button type="submit" isLoading={isSubmitting}>
+              Salvar Alterações
+            </Button>
+          </div>
+        </form>
+      </div>
+    </Layout>
   );
 }
