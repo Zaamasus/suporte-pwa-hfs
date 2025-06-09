@@ -10,6 +10,7 @@ interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
     hint?: string;
     fullWidth?: boolean;
     leftIcon?: ReactNode;
+    placeholder?: string;
 }
 export declare const Select: import("react").ForwardRefExoticComponent<SelectProps & import("react").RefAttributes<HTMLSelectElement>>;
 export {};
