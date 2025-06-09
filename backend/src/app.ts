@@ -7,6 +7,8 @@ import { errorHandler } from './middlewares/errorMiddleware';
 
 const app = express();
 
+console.log('VERSÃO DE DEBUG: CORS LIBERADO E /cors-test ATIVO');
+
 // Middleware CORS liberando para qualquer origem (apenas para teste)
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
@@ -27,6 +29,10 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/tickets', ticketRoutes);
 app.use('/api/companies', companyRoutes);
+
+app.get('/cors-test', (req, res) => {
+  res.json({ message: 'CORS liberado', origin: req.headers.origin });
+});
 
 // Middleware de tratamento de erros
 app.use(errorHandler);
