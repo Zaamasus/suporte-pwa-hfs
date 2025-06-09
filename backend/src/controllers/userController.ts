@@ -72,7 +72,11 @@ export const updateUser = async (req: Request, res: Response) => {
     const { id } = req.params;
     const userData = req.body;
     
-    if (authenticatedReq.user.id !== id && authenticatedReq.user.role !== 'admin') {
+    if (
+      authenticatedReq.user.id !== id &&
+      authenticatedReq.user.role !== 'admin' &&
+      authenticatedReq.user.role !== 'technician'
+    ) {
       return res.status(403).json({ message: 'Não autorizado para atualizar este usuário' });
     }
     
@@ -129,5 +133,19 @@ export const getAllTechnicians = async (req: Request, res: Response) => {
     res.json(technicians);
   } catch (error) {
     res.status(500).json({ message: 'Erro ao buscar técnicos' });
+  }
+};
+
+export const getAllClients = async (req: Request, res: Response) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ message: 'Usuário não autenticado' });
+    }
+
+    const clients = await userService.getAllClients(req.user);
+    res.json(clients);
+  } catch (error) {
+    console.error('Erro ao buscar clientes:', error);
+    res.status(500).json({ message: 'Erro ao buscar clientes' });
   }
 }; 

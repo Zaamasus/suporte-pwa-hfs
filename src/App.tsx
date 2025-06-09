@@ -10,6 +10,7 @@ import { TicketDetails } from './pages/TicketDetails';
 import { NewTicket } from './pages/NewTicket';
 import { NewClient } from './pages/NewClient';
 import { ClientsList } from './pages/ClientsList';
+import { ClientEdit } from './pages/ClientEdit';
 
 // Components
 import { ErrorFallback } from './components/common/ErrorFallback';
@@ -93,6 +94,16 @@ function App() {
         element={
           <ProtectedRoute allowedRoles={['technician', 'admin']}>
             <ClientsList />
+          </ProtectedRoute>
+        }
+        errorElement={<ErrorFallback />}
+      />
+      
+      <Route 
+        path="/clients/edit/:id" 
+        element={
+          <ProtectedRoute allowedRoles={['technician', 'admin']}>
+            <ClientEdit />
           </ProtectedRoute>
         }
         errorElement={<ErrorFallback />}

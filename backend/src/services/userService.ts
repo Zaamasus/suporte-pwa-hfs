@@ -1,5 +1,6 @@
 import { supabase } from '../config/supabase';
 import { User } from '../models/User';
+import bcrypt from 'bcryptjs';
 
 // Obter todos os usuários
 export const getAllUsers = async (): Promise<User[]> => {
@@ -52,19 +53,26 @@ export const createUser = async (userData: Partial<User>): Promise<User> => {
 // Atualizar usuário
 export const updateUser = async (id: string, userData: Partial<User>): Promise<User | null> => {
   // Remover campos que não devem ser atualizados diretamente
-  const { id: _, created_at, ...updateData } = userData as any;
-  
+  const { id: _, created_at, password, ...updateData } = userData as any;
+
+  // Se for enviada uma nova senha, faz o hash
+  if (password) {
+    updateData.password = await bcrypt.hash(password, 10);
+  }
+
+  // is_blocked já será aceito normalmente
+
   const { data, error } = await supabase
     .from('users')
     .update(updateData)
     .eq('id', id)
     .select()
     .single();
-  
+
   if (error) {
     throw new Error(`Erro ao atualizar usuário: ${error.message}`);
   }
-  
+
   return data;
 };
 
@@ -91,5 +99,19 @@ export const getAllTechnicians = async (): Promise<User[]> => {
   if (error) {
     throw new Error(`Erro ao buscar técnicos: ${error.message}`);
   }
+  return data || [];
+};
+
+export const getAllClients = async (_user: any): Promise<User[]> => {
+  // Buscar todos os clientes, independente da empresa
+  const { data, error } = await supabase
+    .from('users')
+    .select('id, name, email, company, role, created_at, updated_at')
+    .eq('role', 'client');
+
+  if (error) {
+    throw new Error(`Erro ao buscar clientes: ${error.message}`);
+  }
+
   return data || [];
 }; 

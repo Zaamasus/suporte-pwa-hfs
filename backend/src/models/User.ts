@@ -7,6 +7,7 @@ export interface User {
   company?: string;
   specialties?: string[];
   is_online?: boolean;
+  is_blocked?: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -18,4 +19,5 @@ export interface UserCreate {
   role?: 'user' | 'admin' | 'client' | 'technician';
   company?: string;
   specialties?: string[];
+  is_blocked?: boolean;
 } 

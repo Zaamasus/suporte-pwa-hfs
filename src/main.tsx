@@ -14,7 +14,7 @@ import { ErrorFallback } from './components/common/ErrorFallback';
 if (import.meta.env.PROD) { // Se estiver em produção (build)
   axios.defaults.baseURL = 'https://hfs-backend.onrender.com'; // URL do backend no Render.com
 } else { // Em desenvolvimento
-  axios.defaults.baseURL = 'http://localhost:3000'; // O backend roda na porta 3000 localmente
+  axios.defaults.baseURL = 'http://192.168.3.3:3000'; // Altere para o IP do seu backend na rede
   console.log('Conectando ao backend em:', axios.defaults.baseURL);
 }
 

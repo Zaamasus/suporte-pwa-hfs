@@ -62,7 +62,7 @@ async function startServer() {
     });
     
     // Inicia o servidor
-    app.listen(port, () => {
+    app.listen(port, '0.0.0.0', () => {
       console.log(`Servidor rodando na porta ${port}`);
       console.log(`Ambiente: ${config.server.env}`);
       console.log(`URL Supabase: ${config.supabase.url}`);
