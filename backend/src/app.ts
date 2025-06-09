@@ -1,5 +1,4 @@
 import express from 'express';
-import cors from 'cors';
 import authRoutes from './routes/authRoutes';
 import userRoutes from './routes/userRoutes';
 import ticketRoutes from './routes/ticketRoutes';
@@ -8,17 +7,9 @@ import { errorHandler } from './middlewares/errorMiddleware';
 
 const app = express();
 
-const allowedOrigins = [
-  'https://zaamasus.github.io',
-  'https://zaamasus.github.io/suporte-pwa-hfs',
-  'http://localhost:5173'
-];
-
+// Middleware CORS liberando para qualquer origem (apenas para teste)
 app.use((req, res, next) => {
-  const origin = req.headers.origin;
-  if (origin && allowedOrigins.includes(origin)) {
-    res.header('Access-Control-Allow-Origin', origin);
-  }
+  res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
   res.header('Access-Control-Allow-Credentials', 'true');
   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept');
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
