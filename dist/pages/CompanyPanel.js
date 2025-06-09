@@ -1,0 +1,37 @@
+import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+import { useState } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useQuery } from 'react-query';
+import axios from 'axios';
+import { Layout } from '../components/layout/Layout';
+import { Input } from '../components/ui/Input';
+import { Button } from '../components/ui/Button';
+import { Mail, Phone, Calendar, Pencil, User, Building } from 'lucide-react';
+export function CompanyPanel() {
+    const { companyName } = useParams();
+    const [search, setSearch] = useState('');
+    const navigate = useNavigate();
+    const decodedCompanyName = companyName ? decodeURIComponent(companyName) : '';
+    const { data: company, isLoading: isLoadingCompany } = useQuery(['company', decodedCompanyName], async () => {
+        const response = await axios.get(`/api/companies/name/${decodedCompanyName}`);
+        return response.data;
+    }, {
+        enabled: !!decodedCompanyName,
+    });
+    const { data: clients, isLoading: isLoadingClients } = useQuery(['companyClients', decodedCompanyName], async () => {
+        const response = await axios.get(`/api/companies/name/${decodedCompanyName}/clients`);
+        return response.data;
+    }, {
+        enabled: !!decodedCompanyName,
+    });
+    const filteredClients = clients?.filter(client => client.name.toLowerCase().includes(search.toLowerCase()) ||
+        (client.email && client.email.toLowerCase().includes(search.toLowerCase()))) || [];
+    if (isLoadingCompany || isLoadingClients) {
+        return (_jsx(Layout, { children: _jsx("div", { className: "container mx-auto px-4 py-8", children: _jsx("div", { className: "text-center", children: "Carregando..." }) }) }));
+    }
+    if (!company) {
+        return (_jsx(Layout, { children: _jsx("div", { className: "container mx-auto px-4 py-8", children: _jsxs("div", { className: "text-center", children: [_jsx("h2", { className: "text-xl font-semibold text-gray-800 dark:text-white mb-4", children: "Empresa n\u00E3o encontrada" }), _jsx(Button, { onClick: () => navigate('/companies'), children: "Voltar para lista de empresas" })] }) }) }));
+    }
+    return (_jsx(Layout, { children: _jsxs("div", { className: "container mx-auto px-4 py-8", children: [_jsxs("div", { className: "flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4", children: [_jsxs("div", { className: "flex items-center", children: [_jsx("div", { className: "w-10 h-10 rounded-full mr-4 flex items-center justify-center", style: { backgroundColor: company.color || '#6366F1' }, children: _jsx(Building, { className: "h-5 w-5 text-white" }) }), _jsx("h1", { className: "text-2xl font-bold text-gray-900 dark:text-white", children: company.name })] }), _jsxs("div", { className: "flex space-x-2", children: [company.id && (_jsx(Link, { to: `/companies/edit/${company.id}`, children: _jsx(Button, { leftIcon: _jsx(Pencil, { className: "h-4 w-4" }), variant: "outline", children: "Editar Empresa" }) })), _jsx(Link, { to: "/clients/new", state: { preselectedCompany: company.name }, children: _jsx(Button, { leftIcon: _jsx(User, { className: "h-4 w-4" }), children: "Novo Cliente" }) })] })] }), _jsxs("div", { className: "bg-white dark:bg-dark-200 rounded-lg shadow-sm p-4 mb-6", children: [_jsx("h2", { className: "text-lg font-semibold mb-2", children: "Informa\u00E7\u00F5es da Empresa" }), _jsxs("div", { className: "grid grid-cols-1 md:grid-cols-2 gap-4", children: [_jsxs("div", { className: "flex items-center", children: [_jsx(Calendar, { className: "h-5 w-5 mr-2 text-gray-500" }), _jsxs("div", { children: [_jsx("div", { className: "text-sm text-gray-500", children: "Criada em" }), _jsx("div", { children: new Date(company.created_at).toLocaleDateString() })] })] }), _jsxs("div", { className: "flex items-center", children: [_jsx(User, { className: "h-5 w-5 mr-2 text-gray-500" }), _jsxs("div", { children: [_jsx("div", { className: "text-sm text-gray-500", children: "Total de clientes" }), _jsx("div", { children: clients?.length || 0 })] })] })] })] }), _jsxs("div", { className: "mb-6", children: [_jsx("h2", { className: "text-xl font-semibold mb-4", children: "Clientes" }), _jsx(Input, { placeholder: "Buscar cliente por nome ou email...", value: search, onChange: (e) => setSearch(e.target.value), className: "mb-4" }), filteredClients.length === 0 ? (_jsxs("div", { className: "text-center py-8 bg-white dark:bg-dark-200 rounded-lg shadow", children: [_jsx("p", { className: "text-gray-500", children: "Nenhum cliente encontrado." }), _jsx(Link, { to: "/clients/new", state: { preselectedCompany: company.name }, className: "mt-2 inline-block", children: _jsx(Button, { size: "sm", children: "Adicionar Cliente" }) })] })) : (_jsx("div", { className: "bg-white dark:bg-dark-200 rounded-lg shadow overflow-hidden", children: _jsxs("table", { className: "min-w-full divide-y divide-gray-200 dark:divide-gray-700", children: [_jsx("thead", { className: "bg-gray-50 dark:bg-dark-300", children: _jsxs("tr", { children: [_jsx("th", { scope: "col", className: "px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider", children: "Nome" }), _jsx("th", { scope: "col", className: "px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider", children: "Email" }), _jsx("th", { scope: "col", className: "px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider", children: "Telefone" }), _jsx("th", { scope: "col", className: "px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider", children: "Data de Cadastro" }), _jsx("th", { scope: "col", className: "px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider", children: "A\u00E7\u00F5es" })] }) }), _jsx("tbody", { className: "bg-white dark:bg-dark-200 divide-y divide-gray-200 dark:divide-gray-700", children: filteredClients.map((client) => (_jsxs("tr", { className: "hover:bg-gray-50 dark:hover:bg-dark-300", children: [_jsx("td", { className: "px-6 py-4 whitespace-nowrap", children: _jsx("div", { className: "flex items-center", children: _jsx("div", { className: "text-sm font-medium text-gray-900 dark:text-white", children: client.name }) }) }), _jsx("td", { className: "px-6 py-4 whitespace-nowrap", children: _jsxs("div", { className: "flex items-center", children: [_jsx(Mail, { className: "h-4 w-4 mr-2 text-gray-500" }), _jsx("div", { className: "text-sm text-gray-500 dark:text-gray-400", children: client.email })] }) }), _jsx("td", { className: "px-6 py-4 whitespace-nowrap", children: client.phone ? (_jsxs("div", { className: "flex items-center", children: [_jsx(Phone, { className: "h-4 w-4 mr-2 text-gray-500" }), _jsx("div", { className: "text-sm text-gray-500 dark:text-gray-400", children: client.phone })] })) : (_jsx("span", { className: "text-sm text-gray-400", children: "N\u00E3o informado" })) }), _jsx("td", { className: "px-6 py-4 whitespace-nowrap", children: _jsx("div", { className: "text-sm text-gray-500 dark:text-gray-400", children: new Date(client.created_at).toLocaleDateString() }) }), _jsx("td", { className: "px-6 py-4 whitespace-nowrap text-right text-sm font-medium", children: _jsx(Link, { to: `/clients/edit/${client.id}`, children: _jsx(Button, { variant: "outline", size: "sm", children: "Editar" }) }) })] }, client.id))) })] }) }))] })] }) }));
+}
+//# sourceMappingURL=CompanyPanel.js.map
