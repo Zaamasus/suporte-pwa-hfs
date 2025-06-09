@@ -11,7 +11,8 @@ const app = express();
 app.use(cors({
   origin: [
     'http://localhost:5173',
-    'https://zaamasus.github.io'
+    'https://zaamasus.github.io',
+    'https://zaamasus.github.io/suporte-pwa-hfs'
   ],
   credentials: true
 }));
