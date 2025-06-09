@@ -1,12 +1,16 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta charset="utf-8">
-    <script>
-      // Redireciona para a base mantendo o path original
-      var path = location.pathname.replace('/suporte-pwa-hfs', '');
-      location.replace('/suporte-pwa-hfs/#' + path + location.search + location.hash);
-    </script>
+    <meta http-equiv="refresh" content="0; url=/suporte-pwa-hfs/" />
   </head>
-  <body></body>
+  <body>
+    <script>
+      // Redireciona para o index.html preservando a rota
+      var l = window.location;
+      var path = l.pathname.replace(/^\/suporte-pwa-hfs\//, '');
+      window.location.replace(
+        l.protocol + '//' + l.host + '/suporte-pwa-hfs/#/' + path + l.search + l.hash
+      );
+    </script>
+  </body>
 </html> 
