@@ -8,50 +8,38 @@ import { errorHandler } from './middlewares/errorMiddleware';
 
 const app = express();
 
+// Configuração do CORS
+const corsOptions = {
+  origin: 'https://zaamasus.github.io',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
+  exposedHeaders: ['Content-Range', 'X-Content-Range'],
+  credentials: true,
+  maxAge: 86400, // 24 horas
+  preflightContinue: false,
+  optionsSuccessStatus: 204
+};
+
 // Middleware para garantir headers CORS
 app.use((req, res, next) => {
-  const allowedOrigins = [
-    'https://zaamasus.github.io',
-    'https://zaamasus.github.io/suporte-pwa-hfs',
-    'http://localhost:5173'
-  ];
-  
-  const origin = req.headers.origin || '';
-  if (allowedOrigins.includes(origin)) {
-    res.setHeader('Access-Control-Allow-Origin', origin);
-  }
-  
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
-  
-  // Handle preflight
+  // Configuração específica para preflight requests
   if (req.method === 'OPTIONS') {
-    res.status(200).end();
-    return;
+    res.header('Access-Control-Allow-Origin', 'https://zaamasus.github.io');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept');
+    res.header('Access-Control-Allow-Credentials', 'true');
+    res.header('Access-Control-Max-Age', '86400');
+    return res.status(204).end();
   }
-  
+
+  // Configuração para outras requisições
+  res.header('Access-Control-Allow-Origin', 'https://zaamasus.github.io');
+  res.header('Access-Control-Allow-Credentials', 'true');
   next();
 });
 
-// Configuração do CORS como backup
-app.use(cors({
-  origin: function(origin, callback) {
-    const allowedOrigins = [
-      'https://zaamasus.github.io',
-      'https://zaamasus.github.io/suporte-pwa-hfs',
-      'http://localhost:5173'
-    ];
-    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+// Aplicar configuração CORS
+app.use(cors(corsOptions));
 
 app.use(express.json());
 
