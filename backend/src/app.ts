@@ -8,13 +8,23 @@ import { errorHandler } from './middlewares/errorMiddleware';
 
 const app = express();
 
-// Configuração simplificada do CORS
+// Configuração do CORS
 app.use(cors({
   origin: 'https://zaamasus.github.io',
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  exposedHeaders: ['Content-Range', 'X-Content-Range'],
+  preflightContinue: false,
+  optionsSuccessStatus: 204
 }));
+
+// Middleware para garantir headers CORS em todas as respostas
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', 'https://zaamasus.github.io');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  next();
+});
 
 app.use(express.json());
 
