@@ -8,27 +8,10 @@ import { errorHandler } from './middlewares/errorMiddleware';
 
 const app = express();
 
-// Middleware para adicionar headers CORS manualmente
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', 'https://zaamasus.github.io');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-  res.header('Access-Control-Allow-Credentials', 'true');
-  
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
-  next();
-});
-
-// Configuração do CORS como fallback
+// Configuração simplificada do CORS
 app.use(cors({
-  origin: 'https://zaamasus.github.io',
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  preflightContinue: false,
-  optionsSuccessStatus: 204
+  origin: true,
+  credentials: true
 }));
 
 app.use(express.json());
