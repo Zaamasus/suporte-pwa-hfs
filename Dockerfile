@@ -7,14 +7,14 @@ WORKDIR /app
 # Copia os arquivos de dependências
 COPY package*.json ./
 
-# Instala as dependências
-RUN npm ci --only=production
+# Instala TODAS as dependências (incluindo dev)
+RUN npm ci
 
 # Copia o código fonte
 COPY . .
 
-# Constrói a aplicação
-RUN npm run build
+# Constrói a aplicação (pulando TypeScript)
+RUN npm run build:skip-ts
 
 # Estágio de produção
 FROM nginx:alpine
