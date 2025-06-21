@@ -36,8 +36,8 @@ WORKDIR /app/backend
 COPY backend/package*.json ./
 COPY backend/tsconfig*.json ./
 
-# Instala dependências
-RUN npm ci --only=production && npm cache clean --force
+# Instala TODAS as dependências (incluindo devDependencies para build)
+RUN npm ci && npm cache clean --force
 
 # Copia código fonte
 COPY backend/src/ ./src/
