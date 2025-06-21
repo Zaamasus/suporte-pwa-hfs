@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  # Backend service
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: suporte-backend
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_KEY=${SUPABASE_KEY}
+      - JWT_SECRET=${JWT_SECRET}
+    ports:
+      - "3000:3000"
+    networks:
+      - suporte-network
+    restart: unless-stopped
+
+  # Frontend service
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: suporte-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - suporte-network
+    restart: unless-stopped
+
+networks:
+  suporte-network:
+    driver: bridge 

@@ -1,0 +1,11 @@
+services:
+  # Frontend apenas (conectando ao backend existente)
+  - type: web
+    name: suporte-frontend
+    env: static
+    plan: free
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    envVars:
+      - key: VITE_API_URL
+        value: https://seu-backend.onrender.com  # ⚠️ ALTERE PARA SUA URL 

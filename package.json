@@ -11,7 +11,11 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "predeploy": "npm run build:skip-ts",
-    "deploy": "gh-pages -d dist"
+    "deploy": "gh-pages -d dist",
+    "docker:build": "docker build -f Dockerfile.full -t suporte-hfs .",
+    "docker:run": "docker run -p 80:80 suporte-hfs",
+    "docker:compose": "docker-compose up --build",
+    "render:deploy": "npm run build && echo 'Build concluído para deploy no Render'"
   },
   "keywords": [],
   "author": "",

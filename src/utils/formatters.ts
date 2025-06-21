@@ -56,11 +56,10 @@ export const formatRelativeTime = (date: string | Date): string => {
 // Get ticket status in Portuguese
 export const getTicketStatusText = (status: TicketStatus): string => {
   const statusMap: Record<TicketStatus, string> = {
-    open: 'Em aberto',
-    in_progress: 'Em andamento',
-    paused: 'Em pausa',
-    completed: 'Concluído',
-    closed: 'Concluído',
+    [TicketStatus.OPEN]: 'Em aberto',
+    [TicketStatus.IN_PROGRESS]: 'Em andamento',
+    [TicketStatus.PAUSED]: 'Em pausa',
+    [TicketStatus.CLOSED]: 'Concluído',
   };
   return statusMap[status] || status;
 };
@@ -68,29 +67,32 @@ export const getTicketStatusText = (status: TicketStatus): string => {
 // Get ticket status color
 export const getTicketStatusColor = (status: TicketStatus): string => {
   const colorMap: Record<TicketStatus, string> = {
-    open: 'warning',
-    in_progress: 'primary',
-    completed: 'success',
+    [TicketStatus.OPEN]: 'warning',
+    [TicketStatus.IN_PROGRESS]: 'primary',
+    [TicketStatus.PAUSED]: 'secondary',
+    [TicketStatus.CLOSED]: 'success',
   };
-  return colorMap[status];
+  return colorMap[status] || 'default';
 };
 
 // Get ticket priority in Portuguese
 export const getTicketPriorityText = (priority: TicketPriority): string => {
   const priorityMap: Record<TicketPriority, string> = {
-    low: 'Baixa',
-    medium: 'Média',
-    high: 'Alta',
+    [TicketPriority.LOW]: 'Baixa',
+    [TicketPriority.MEDIUM]: 'Média',
+    [TicketPriority.HIGH]: 'Alta',
+    [TicketPriority.CRITICAL]: 'Crítica',
   };
-  return priorityMap[priority];
+  return priorityMap[priority] || priority;
 };
 
 // Get ticket priority color
 export const getTicketPriorityColor = (priority: TicketPriority): string => {
   const colorMap: Record<TicketPriority, string> = {
-    low: 'success',
-    medium: 'warning',
-    high: 'danger',
+    [TicketPriority.LOW]: 'success',
+    [TicketPriority.MEDIUM]: 'warning',
+    [TicketPriority.HIGH]: 'danger',
+    [TicketPriority.CRITICAL]: 'danger',
   };
-  return colorMap[priority];
+  return colorMap[priority] || 'default';
 };

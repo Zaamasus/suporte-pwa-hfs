@@ -4,7 +4,8 @@ import { VitePWA } from 'vite-plugin-pwa';
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
-  const base = mode === 'production' ? '/suporte-pwa-hfs/' : '/';
+  // No Render, não precisamos do path base do GitHub Pages
+  const base = '/';
   
   return {
     base,
@@ -12,7 +13,7 @@ export default defineConfig(({ mode }) => {
       react(),
       VitePWA({
         registerType: 'autoUpdate',
-        scope: mode === 'production' ? '/suporte-pwa-hfs/' : '/',
+        scope: '/',
         includeAssets: ['favicon.ico', 'logo.svg', 'icons/**'],
         manifest: {
           name: 'HFS INFORMATICA',
@@ -20,16 +21,16 @@ export default defineConfig(({ mode }) => {
           description: 'Sistema de gestão de chamados técnicos da HFS INFORMATICA',
           theme_color: '#6366f1',
           background_color: '#1a1b26',
-          start_url: mode === 'production' ? '/suporte-pwa-hfs/' : '/',
-          scope: mode === 'production' ? '/suporte-pwa-hfs/' : '/',
+          start_url: '/',
+          scope: '/',
           icons: [
             {
-              src: mode === 'production' ? '/suporte-pwa-hfs/icons/icon-192x192.png' : '/icons/icon-192x192.png',
+              src: '/icons/icon-192x192.png',
               sizes: '192x192',
               type: 'image/png'
             },
             {
-              src: mode === 'production' ? '/suporte-pwa-hfs/icons/icon-512x512.png' : '/icons/icon-512x512.png',
+              src: '/icons/icon-512x512.png',
               sizes: '512x512',
               type: 'image/png'
             }

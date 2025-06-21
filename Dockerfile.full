@@ -1,0 +1,63 @@
+# Dockerfile para aplicação completa (frontend + backend)
+FROM node:18-alpine as base
+
+# Instalar dependências do sistema
+RUN apk add --no-cache nginx
+
+# Estágio de build do frontend
+FROM base as frontend-build
+WORKDIR /app/frontend
+
+# Copia arquivos do frontend
+COPY package*.json ./
+COPY vite.config.ts ./
+COPY tsconfig*.json ./
+COPY src/ ./src/
+COPY public/ ./public/
+COPY tailwind.config.js ./
+COPY postcss.config.js ./
+COPY index.html ./
+
+# Instala dependências e constrói o frontend
+RUN npm ci
+RUN npm run build
+
+# Estágio de build do backend
+FROM base as backend-build
+WORKDIR /app/backend
+
+# Copia arquivos do backend
+COPY backend/package*.json ./
+COPY backend/tsconfig*.json ./
+COPY backend/src/ ./src/
+
+# Instala dependências e constrói o backend
+RUN npm ci
+RUN npm run build
+
+# Estágio de produção
+FROM base as production
+
+# Configuração do nginx
+COPY nginx.conf /etc/nginx/nginx.conf
+
+# Copia o frontend construído
+COPY --from=frontend-build /app/frontend/dist /usr/share/nginx/html
+
+# Copia o backend construído
+COPY --from=backend-build /app/backend/dist /app/backend/dist
+COPY --from=backend-build /app/backend/package*.json /app/backend/
+
+# Instala apenas dependências de produção do backend
+WORKDIR /app/backend
+RUN npm ci --only=production
+
+# Script de inicialização
+COPY start.sh /start.sh
+RUN chmod +x /start.sh
+
+# Expõe a porta 80
+EXPOSE 80
+
+# Inicia nginx e backend
+CMD ["/start.sh"] 

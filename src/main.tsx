@@ -4,11 +4,13 @@ import axios from 'axios';
 import App from './App';
 import './index.css';
 import { AuthProvider } from './contexts/AuthContext';
+import { HashRouter } from 'react-router-dom';
+import ErrorBoundary from './components/common/ErrorBoundary';
 
 // Configurar a baseURL do Axios
-// Em um app real, isso viria de uma variável de ambiente
 if (import.meta.env.PROD) { // Se estiver em produção (build)
-  axios.defaults.baseURL = 'https://suporte-pwa-hfs.onrender.com'; // URL do backend no Render.com
+  // Na aplicação completa, o backend estará na mesma URL, apenas em /api
+  axios.defaults.baseURL = window.location.origin;
 } else { // Em desenvolvimento
   axios.defaults.baseURL = 'http://localhost:3000'; // URL do backend em desenvolvimento
   console.log('Conectando ao backend em:', axios.defaults.baseURL);
@@ -18,7 +20,11 @@ if (import.meta.env.PROD) { // Se estiver em produção (build)
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <AuthProvider>
-      <App />
+      <HashRouter>
+        <ErrorBoundary>
+          <App />
+        </ErrorBoundary>       
+      </HashRouter>
     </AuthProvider>
   </StrictMode>
 );

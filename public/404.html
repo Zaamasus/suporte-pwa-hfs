@@ -8,9 +8,12 @@
       // Redireciona para o index.html preservando a rota
       var l = window.location;
       var path = l.pathname.replace(/^\/suporte-pwa-hfs\//, '');
-      window.location.replace(
-        l.protocol + '//' + l.host + '/suporte-pwa-hfs/#/' + path + l.search + l.hash
-      );
+      // Se já está usando hash, não faz nada
+      if (!l.hash || l.hash === '#/' || l.hash === '#') {
+        window.location.replace(
+          l.protocol + '//' + l.host + '/suporte-pwa-hfs/#/' + path + l.search + l.hash
+        );
+      }
     </script>
   </body>
 </html> 

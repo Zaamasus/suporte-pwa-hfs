@@ -3,6 +3,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { Home, Users, Ticket, Building, User, LogOut } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
 import { Button } from '../ui/Button';
+import { UserRole } from '../../types';
 
 interface SidebarLinkProps {
   to: string;
@@ -32,9 +33,8 @@ export function Sidebar() {
   const { user, logout } = useAuth();
   const { toggleTheme, theme } = useTheme();
   
-  const isAdmin = user?.role === 'admin';
-  const isTechnician = user?.role === 'technician' || isAdmin;
-  const isClient = user?.role === 'client';
+  const isAdmin = user?.role === UserRole.ADMIN;
+  const isTechnician = user?.role === UserRole.TECHNICIAN || isAdmin;
   
   const handleLogout = () => {
     logout();

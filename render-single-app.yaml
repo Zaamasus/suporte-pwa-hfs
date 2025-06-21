@@ -1,0 +1,19 @@
+services:
+  # Aplicação completa (frontend + backend)
+  - type: web
+    name: suporte-hfs
+    env: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 80
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_KEY
+        sync: false
+      - key: JWT_SECRET
+        sync: false 

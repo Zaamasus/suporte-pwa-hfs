@@ -10,6 +10,7 @@ export interface User {
   password?: string;
   role: UserRole;
   companyId?: string;
+  company?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -17,7 +18,8 @@ export interface User {
 export enum UserRole {
   ADMIN = 'admin',
   COMPANY = 'company',
-  TECHNICIAN = 'technician'
+  TECHNICIAN = 'technician',
+  CLIENT = 'client'
 }
 
 // Empresa
@@ -40,11 +42,17 @@ export interface Ticket {
   status: TicketStatus;
   priority: TicketPriority;
   companyId: string;
+  clientId?: string;
+  clientName?: string;
+  companyName?: string;
   technicianId?: string;
+  technicianName?: string;
   createdBy: string;
   closedAt?: Date;
   createdAt: Date;
   updatedAt: Date;
+  history?: TicketHistory[];
+  category?: string;
 }
 
 export enum TicketStatus {
@@ -130,23 +138,6 @@ export type TicketHistory = {
   };
 };
 
-export interface Ticket {
-  id: string;
-  title: string;
-  description: string;
-  status: TicketStatus;
-  priority: TicketPriority;
-  clientId: string;
-  clientName: string;
-  companyName?: string;
-  technicianId?: string;
-  technicianName?: string;
-  createdAt: string;
-  updatedAt: string;
-  history: TicketHistory[];
-  category?: string;
-}
-
 // UI Types
 export type Theme = 'dark' | 'light';
 
@@ -175,8 +166,8 @@ export interface ChatSession {
   endedAt?: string;
 }
 
-// Technician Types
-export interface Technician extends User {
+// Technician Types (estendendo User)
+export interface TechnicianUser extends User {
   isOnline: boolean;
   specialties?: string[];
   assignedTickets?: number;

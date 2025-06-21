@@ -26,19 +26,20 @@ export function ClientForm() {
   const [isNewCompany, setIsNewCompany] = useState(false);
   
   // Buscar empresas existentes
-  const { data: companies = [] } = useQuery<string[]>('companies', async () => {
-    const response = await axios.get('/api/users/clients');
-    // Extrair nomes únicos de empresas
-    const uniqueCompanies = new Set(response.data.map((client: any) => client.company).filter(Boolean));
-    return Array.from(uniqueCompanies);
-  });
+  const { data: companies = [] } = useQuery<string[]>(
+    'companies',
+    async () => {
+      const response = await axios.get<string[]>('/api/companies/names');
+      return response.data as string[];
+    }
+  );
   
   const {
     register,
     handleSubmit,
     reset,
     setValue,
-    watch,
+ 
     formState: { errors, isSubmitSuccessful },
   } = useForm<ClientFormData>({
     resolver: zodResolver(clientSchema),
@@ -66,8 +67,6 @@ export function ClientForm() {
       reset();
     }
   };
-
-  const selectedCompany = watch('company');
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">

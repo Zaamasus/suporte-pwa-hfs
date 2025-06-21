@@ -24,6 +24,14 @@ interface TechnicianResponse {
 export function TechnicianList() {
   const { token, user } = useAuth();
   
+  if (!token) {
+    return (
+      <div className="bg-danger-50 dark:bg-danger-900/30 text-danger-700 dark:text-danger-400 p-4 rounded-md">
+        Você precisa estar logado para visualizar os técnicos.
+      </div>
+    );
+  }
+
   // Debug: log de informações importantes
   useEffect(() => {
     console.log('Token disponível:', !!token);
