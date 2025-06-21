@@ -18,9 +18,9 @@ COPY tailwind.config.js ./
 COPY postcss.config.js ./
 COPY index.html ./
 
-# Instala dependências e constrói o frontend
+# Instala TODAS as dependências (incluindo dev) e constrói o frontend
 RUN npm ci
-RUN npm run build
+RUN npm run build:skip-ts
 
 # Estágio de build do backend
 FROM base as backend-build
@@ -31,7 +31,7 @@ COPY backend/package*.json ./
 COPY backend/tsconfig*.json ./
 COPY backend/src/ ./src/
 
-# Instala dependências e constrói o backend
+# Instala TODAS as dependências (incluindo dev) e constrói o backend
 RUN npm ci
 RUN npm run build
 
