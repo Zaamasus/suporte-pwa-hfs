@@ -1,130 +1,167 @@
-# 🚀 Sistema de Suporte Técnico HFS
+# 🚀 Sistema de Suporte Técnico - HFS INFORMATICA
 
-Sistema completo de gestão de chamados técnicos com frontend React + TypeScript e backend Node.js + Supabase.
+Sistema completo de gestão de chamados técnicos com frontend React + TypeScript e backend Node.js + Express + Supabase.
 
-## ✨ Funcionalidades
-
-- 🔐 **Autenticação** com JWT
-- 👥 **Gestão de Clientes** e Empresas
-- 🎫 **Sistema de Tickets** com prioridades
-- 👨‍💻 **Painel de Técnicos** com WhatsApp direto
-- 📊 **Dashboard** com métricas
-- 🌙 **Tema Escuro/Claro**
-- 📱 **PWA** (Progressive Web App)
-
-## 🏗️ Estrutura do Projeto
-
-```
-src/
-├── components/          # Componentes React
-│   ├── auth/           # Componentes de autenticação
-│   ├── clients/        # Componentes de clientes
-│   ├── common/         # Componentes comuns
-│   ├── layout/         # Componentes de layout
-│   ├── tickets/        # Componentes de tickets
-│   └── ui/             # Componentes de UI
-├── contexts/           # Contextos React
-├── pages/              # Páginas da aplicação
-├── services/           # Serviços de API
-├── types/              # Tipos TypeScript
-├── utils/              # Utilitários
-└── main.tsx           # Ponto de entrada
-```
-
-## 🚀 Deploy
-
-### Render (Recomendado)
-
-1. **Acesse [render.com](https://render.com)**
-2. **Crie um Web Service**
-3. **Conecte o repositório GitHub**
-4. **Configure:**
-   - **Dockerfile Path**: `Dockerfile.full`
-   - **Docker Context**: `.`
-5. **Variáveis de Ambiente:**
-   ```
-   NODE_ENV=production
-   PORT=80
-   SUPABASE_URL=sua_url_do_supabase
-   SUPABASE_KEY=sua_chave_do_supabase
-   ```
-
-### URLs Finais
-- **Aplicação**: `https://suporte-hfs.onrender.com`
-- **API**: `https://suporte-hfs.onrender.com/api`
-
-## 🛠️ Desenvolvimento
-
-### Instalar Dependências
-```bash
-npm install
-```
-
-### Executar em Desenvolvimento
-```bash
-npm run dev
-```
-
-### Build para Produção
-```bash
-npm run build
-```
-
-### Build sem TypeScript (para deploy)
-```bash
-npm run build:skip-ts
-```
-
-## 📦 Scripts Disponíveis
-
-- `npm run dev` - Desenvolvimento
-- `npm run build` - Build com TypeScript
-- `npm run build:skip-ts` - Build sem TypeScript
-- `npm run lint` - Linter
-- `npm run preview` - Preview do build
-- `npm run docker:build` - Build Docker
-- `npm run docker:run` - Executar Docker
-- `npm run docker:compose` - Docker Compose
-
-## 🔧 Tecnologias
+## 🛠️ Tecnologias
 
 ### Frontend
 - **React 18** + **TypeScript**
-- **Vite** - Build tool
-- **Tailwind CSS** - Estilização
-- **React Router** - Roteamento
-- **React Query** - Gerenciamento de estado
-- **React Hook Form** - Formulários
-- **Zod** - Validação
-- **Lucide React** - Ícones
+- **Vite** (build tool)
+- **Tailwind CSS** (estilização)
+- **React Router** (navegação)
+- **React Query** (gerenciamento de estado)
+- **React Hook Form** (formulários)
+- **PWA** (Progressive Web App)
 
 ### Backend
 - **Node.js** + **Express**
-- **Supabase** - Banco de dados
-- **JWT** - Autenticação
-- **CORS** - Cross-origin
+- **TypeScript**
+- **Supabase** (banco de dados)
+- **JWT** (autenticação)
+- **Multer** (upload de arquivos)
 
-### Deploy
-- **Docker** - Containerização
-- **Nginx** - Proxy reverso
-- **Render** - Hospedagem
+## 🚀 Deploy no Render
 
-## 📁 Arquivos de Configuração
+### Configuração Rápida
+1. **Fork/Clone** este repositório
+2. **No Render Dashboard:**
+   - **Dockerfile Path:** `Dockerfile.full`
+   - **Docker Context:** `.`
+   - **Port:** `80`
 
-- `Dockerfile.full` - Aplicação completa
-- `nginx.conf` - Configuração do Nginx
-- `vite.config.ts` - Configuração do Vite
-- `tailwind.config.js` - Configuração do Tailwind
-- `tsconfig.json` - Configuração do TypeScript
+### Variáveis de Ambiente
+```env
+NODE_ENV=production
+PORT=80
+SUPABASE_URL=sua_url_do_supabase
+SUPABASE_KEY=sua_chave_do_supabase
+JWT_SECRET=seu_jwt_secret
+```
 
-## 🎯 Status do Projeto
+## 🏃‍♂️ Desenvolvimento Local
 
-- ✅ **Refatoração completa** realizada
-- ✅ **Código limpo** e organizado
-- ✅ **Dependências otimizadas**
-- ✅ **Deploy configurado**
-- ✅ **PWA funcionando**
+### Pré-requisitos
+- Node.js 18+
+- npm ou yarn
+
+### Instalação
+```bash
+# Instalar dependências do frontend
+npm install
+
+# Instalar dependências do backend
+cd backend
+npm install
+cd ..
+```
+
+### Executar
+```bash
+# Frontend (porta 5173)
+npm run dev
+
+# Backend (porta 3000)
+cd backend
+npm run dev
+```
+
+### Build
+```bash
+# Build completo
+npm run build
+
+# Build sem TypeScript (mais rápido)
+npm run build:skip-ts
+```
+
+## 📱 Funcionalidades
+
+### 🔐 Autenticação
+- Login/Registro de usuários
+- JWT com refresh token
+- Controle de acesso por roles
+
+### 👥 Gestão de Clientes
+- Cadastro e edição de clientes
+- Agrupamento por empresas
+- Histórico de tickets
+
+### 🏢 Gestão de Empresas
+- Cadastro de empresas
+- Cores personalizadas
+- Painel específico por empresa
+
+### 🎫 Sistema de Tickets
+- Criação e acompanhamento
+- Prioridades (Baixa, Média, Alta, Crítica)
+- Status (Aberto, Em Andamento, Resolvido, Fechado)
+- Anexos de arquivos
+- Comentários e histórico
+
+### 👨‍💼 Painel de Técnicos
+- Lista de técnicos disponíveis
+- Atribuição de tickets
+- Dashboard com estatísticas
+
+### 🎨 Interface
+- Tema escuro/claro
+- Design responsivo
+- PWA instalável
+- Notificações toast
+
+## 🔧 Scripts Disponíveis
+
+```bash
+# Desenvolvimento
+npm run dev              # Frontend
+npm run build            # Build completo
+npm run build:skip-ts    # Build rápido
+npm run preview          # Preview do build
+
+# Docker
+npm run docker:build     # Build da imagem
+npm run docker:run       # Executar container
+npm run docker:compose   # Docker Compose
+
+# Deploy
+npm run deploy           # Deploy no GitHub Pages
+npm run render:deploy    # Build para Render
+```
+
+## 📁 Estrutura do Projeto
+
+```
+suporte-pwa-hfs/
+├── src/                 # Frontend React
+│   ├── components/      # Componentes reutilizáveis
+│   ├── pages/          # Páginas da aplicação
+│   ├── contexts/       # Contextos React
+│   ├── utils/          # Utilitários
+│   └── types/          # Tipos TypeScript
+├── backend/            # Backend Node.js
+│   ├── src/           # Código fonte
+│   └── package.json   # Dependências
+├── public/            # Arquivos estáticos
+├── dist/              # Build do frontend
+├── Dockerfile.full    # Docker para produção
+└── nginx.conf         # Configuração do nginx
+```
+
+## 🐛 Debug
+
+Acesse `/debug` na aplicação para:
+- ✅ Testar conectividade com backend
+- ✅ Verificar status da API
+- ✅ Mostrar informações do ambiente
+- ✅ Diagnosticar problemas
+
+## 📞 Suporte
+
+Para problemas ou dúvidas:
+1. Verifique a página de debug (`/debug`)
+2. Consulte os logs do Render
+3. Abra uma issue no GitHub
 
 ---
 
-**Desenvolvido para HFS Informática** 🚀 
+**Desenvolvido por HFS INFORMATICA** 🚀 
