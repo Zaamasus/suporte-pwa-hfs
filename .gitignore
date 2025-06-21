@@ -38,3 +38,6 @@ dist-ssr
 *.db-journal
 backend/*.db
 backend/*.db-journal
+
+# Bolt AI
+.bolt/
