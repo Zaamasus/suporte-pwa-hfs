@@ -4,7 +4,6 @@ import { Card, CardContent, CardHeader } from '../ui/Card';
 import { formatDate, getTicketStatusColor, getTicketStatusText } from '../../utils/formatters';
 import { MessageSquare, Clock, Building2, Tag } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { getCompanyColor } from '../../utils/companyColors';
 
 interface TicketCardProps {
   ticket: Ticket;
@@ -17,7 +16,6 @@ export function TicketCard({ ticket }: TicketCardProps) {
       ? undefined
       : getTicketStatusColor(ticket.status) as 'primary' | 'warning' | 'success';
   const statusText = getTicketStatusText(ticket.status);
-  const companyColor = ticket.companyName ? getCompanyColor(ticket.companyName) : null;
 
   return (
     <Link to={`/tickets/${ticket.id}`}>
@@ -34,10 +32,10 @@ export function TicketCard({ ticket }: TicketCardProps) {
                 <Badge variant={statusColor}>{statusText}</Badge>
               )}
             </div>
-            {ticket.companyName && companyColor && (
+            {ticket.companyName && (
               <div className="flex items-center text-sm">
-                <Building2 className={`mr-1.5 h-4 w-4 ${companyColor.textColor}`} />
-                <span className={`font-medium ${companyColor.textColor}`}>{ticket.companyName}</span>
+                <Building2 className="mr-1.5 h-4 w-4 text-blue-600 dark:text-blue-400" />
+                <span className="font-medium text-blue-600 dark:text-blue-400">{ticket.companyName}</span>
               </div>
             )}
           </div>
