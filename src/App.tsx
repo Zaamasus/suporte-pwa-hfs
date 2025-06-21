@@ -13,6 +13,7 @@ import { CompanyPanel } from './pages/CompanyPanel';
 import { CompaniesList } from './pages/CompaniesList';
 import { CompanyEdit } from './pages/CompanyEdit';
 import { TicketsList } from './pages/TicketsList';
+import { NewTicket } from './pages/NewTicket';
 import { TicketDetails } from './pages/TicketDetails';
 import { Profile } from './pages/Profile';
 import { Debug } from './pages/Debug';
@@ -50,6 +51,7 @@ function App() {
               <Route path="companies/:id" element={<CompanyEdit />} />
               <Route path="companies/:id/panel" element={<CompanyPanel />} />
               <Route path="tickets" element={<TicketsList />} />
+              <Route path="tickets/new" element={<NewTicket />} />
               <Route path="tickets/:id" element={<TicketDetails />} />
               <Route path="profile" element={<Profile />} />
             </Route>

@@ -93,10 +93,10 @@ export function TicketForm({ onSubmit, isLoading, initialData }: TicketFormProps
         />
       </div>
 
-      {user?.company && (
+      {user?.companyId && (
         <div className="bg-gray-50 dark:bg-dark-300 p-3 rounded-md">
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            Este chamado será aberto para: <span className="font-medium">{user.company}</span>
+            Este chamado será aberto para sua empresa
           </p>
         </div>
       )}
