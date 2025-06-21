@@ -15,6 +15,7 @@ import { CompanyEdit } from './pages/CompanyEdit';
 import { TicketsList } from './pages/TicketsList';
 import { TicketDetails } from './pages/TicketDetails';
 import { Profile } from './pages/Profile';
+import { Debug } from './pages/Debug';
 
 // Components
 import { PrivateRoute } from './components/auth/PrivateRoute';
@@ -38,31 +39,22 @@ function App() {
             {/* Rotas públicas */}
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/debug" element={<Debug />} />
             
             {/* Rotas privadas */}
             <Route path="/" element={<PrivateRoute />}>
               <Route index element={<Dashboard />} />
-              
-              {/* Rotas de clientes */}
               <Route path="clients" element={<ClientsList />} />
-              <Route path="clients/new" element={<ClientEdit />} />
-              <Route path="clients/edit/:id" element={<ClientEdit />} />
-              
-              {/* Rotas de empresas */}
+              <Route path="clients/:id" element={<ClientEdit />} />
               <Route path="companies" element={<CompaniesList />} />
-              <Route path="companies/new" element={<CompanyEdit />} />
-              <Route path="companies/edit/:id" element={<CompanyEdit />} />
-              <Route path="companies/:companyName" element={<CompanyPanel />} />
-              
-              {/* Rotas de tickets */}
+              <Route path="companies/:id" element={<CompanyEdit />} />
+              <Route path="companies/:id/panel" element={<CompanyPanel />} />
               <Route path="tickets" element={<TicketsList />} />
               <Route path="tickets/:id" element={<TicketDetails />} />
-              
-              {/* Perfil do usuário */}
               <Route path="profile" element={<Profile />} />
             </Route>
             
-            {/* Redirecionamento para o login */}
+            {/* Redirecionamento padrão */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
        

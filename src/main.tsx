@@ -6,6 +6,7 @@ import './index.css';
 import { AuthProvider } from './contexts/AuthContext';
 import { HashRouter } from 'react-router-dom';
 import ErrorBoundary from './components/common/ErrorBoundary';
+import { healthCheck, testApiConnection } from './utils/healthCheck';
 
 // Configurar a baseURL do Axios
 if (import.meta.env.PROD) { // Se estiver em produção (build)
@@ -16,6 +17,12 @@ if (import.meta.env.PROD) { // Se estiver em produção (build)
   axios.defaults.baseURL = 'http://localhost:3000'; // URL do backend em desenvolvimento
   console.log('Conectando ao backend em desenvolvimento:', axios.defaults.baseURL);
 }
+
+// Health check automático
+setTimeout(() => {
+  healthCheck();
+  testApiConnection();
+}, 2000);
 
 // Renderiza a aplicação
 createRoot(document.getElementById('root')!).render(
