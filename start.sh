@@ -28,14 +28,12 @@ fi
 
 echo "Backend iniciado com PID: $BACKEND_PID"
 
-# Inicia o nginx
+# Inicia o nginx em foreground (processo principal do container)
 echo "Iniciando nginx..."
-nginx -g "daemon off;" &
-NGINX_PID=$!
+nginx -g "daemon off;"
 
 echo "Aplicação iniciada com sucesso!"
 echo "Backend PID: $BACKEND_PID"
-echo "Nginx PID: $NGINX_PID"
 
 # Aguarda indefinidamente
 wait 
