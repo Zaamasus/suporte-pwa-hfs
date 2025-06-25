@@ -30,7 +30,7 @@ echo "Backend iniciado com PID: $BACKEND_PID"
 
 # Inicia o nginx em foreground (processo principal do container)
 echo "Iniciando nginx..."
-nginx -g "daemon off;"
+nginx -c /etc/nginx/nginx.conf -g "daemon off;"
 
 echo "Aplicação iniciada com sucesso!"
 echo "Backend PID: $BACKEND_PID"

@@ -51,6 +51,9 @@ FROM base as production
 # Configuração do nginx
 COPY nginx.conf /etc/nginx/nginx.conf
 
+# Remove configs extras do nginx
+RUN rm -f /etc/nginx/conf.d/* /etc/nginx/sites-enabled/*
+
 # Cria diretórios necessários
 RUN mkdir -p /usr/share/nginx/html /app/backend && \
     chown -R nextjs:nodejs /usr/share/nginx/html /app/backend
